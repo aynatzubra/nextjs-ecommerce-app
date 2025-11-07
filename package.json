@@ -15,11 +15,12 @@
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.1",
     "@prisma/client": "^6.18.0",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "next": "16.0.0",
-    "prisma": "^6.18.0",
+    "next-auth": "5.0.0-beta.30",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },
@@ -38,6 +39,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "prettier": "^3.6.2",
+    "prisma": "^6.18.0",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "typescript": "^5"
