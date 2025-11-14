@@ -1388,7 +1388,7 @@ var hs = me((Vy, Qu) => {
     scripts: {
       dev: 'DEV=true tsx helpers/build.ts',
       build: 'tsx helpers/build.ts',
-      test: 'dotenv -e ../../.db.env -- jest --silent',
+      test: 'dotenv -e ../../.prisma.env -- jest --silent',
       prepublishOnly: 'pnpm run build',
     },
     files: ['README.md', 'dist', '!**/libquery_engine*', '!dist/get-generators/engines/*', 'scripts'],
