@@ -1,10 +1,7 @@
 import { vi } from 'vitest'
 
-vi.mock('next/navigation', () => ({
-  useRouter: vi.fn(() => ({
-    push: vi.fn(),
-    replace: vi.fn(),
-    prefetch: vi.fn(),
-  })),
-  redirect: vi.fn(),
+vi.mock('next/server', () => ({
+  NextResponse: {
+    json: (data: any, init?: any) => ({ data, ...init }),
+  },
 }))

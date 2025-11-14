@@ -3,14 +3,11 @@ import { resolve } from 'path'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
-  plugins: [
-    tsconfigPaths({
-      root: resolve(__dirname, '.'),
-    }),
-  ],
+  plugins: [tsconfigPaths()],
   resolve: {
     alias: {
-      '@/': resolve(__dirname, './src/'),
+      '@': resolve(__dirname, './src/'),
+      'next/server': resolve(__dirname, '__mocks__/next-server.ts'),
     },
   },
   test: {
