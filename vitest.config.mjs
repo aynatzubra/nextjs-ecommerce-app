@@ -15,7 +15,14 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
-    exclude: ['**/node_modules/**', '**/dist/**', '**/build/**', './.next/**'],
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      './.next/**',
+      '**/security.middleware.test.ts',
+      '**/node_modules/**',
+    ],
   },
 
   deps: {

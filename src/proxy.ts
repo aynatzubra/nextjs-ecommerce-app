@@ -1,5 +1,5 @@
-import { auth } from '@/src/features/auth/lib/auth'
 import { NextResponse } from 'next/server'
+import { auth } from '@/features/auth/lib/auth'
 
 export default auth((req) => {
   const { pathname } = req.nextUrl
