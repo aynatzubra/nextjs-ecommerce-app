@@ -1,0 +1,1 @@
+export { useCardStore } from './model'
