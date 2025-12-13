@@ -35,7 +35,7 @@ export default async function RootLayout({
           <div className="flex min-h-screen flex-col">
             <AppHeader />
 
-            <main className="container mx-auto flex-1 px-4 py-6">{children}</main>
+            <main className="container max-w-full flex-1 px-4 py-6 bg-white">{children}</main>
 
             <footer className="border-t border-zinc-200 py-4 text-center text-sm text-zinc-500">Bad Rabbit</footer>
           </div>
