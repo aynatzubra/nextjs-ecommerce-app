@@ -8,3 +8,14 @@ export interface ProductListItem {
   categoryName: string
   inStock: boolean
 }
+
+export interface ProductDetails {
+  id: number
+  name: string
+  slug: string
+  description: string
+  price: number
+  images: string[]
+  categoryName: string
+  inStock: boolean
+}

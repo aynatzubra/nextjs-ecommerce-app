@@ -1,13 +1,14 @@
 import Link from 'next/link'
 import type { ProductListItem } from '@/entities/product'
 import { AddToCartButton } from '@/features/catalog/add-to-cart/ui'
+import type { CartCurrency } from '@/entities/cart'
 
 interface ProductCardProps {
   product: ProductListItem
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const currency = 'MDL'
+  const currency: CartCurrency = 'MDL'
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
       <Link href={`/catalog/${product.slug}`} className="flex flex-1 flex-col">

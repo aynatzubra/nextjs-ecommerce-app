@@ -1,2 +1,2 @@
-export type { ProductListItem } from './types'
-export { getCatalogProducts } from './api'
+export type { ProductListItem, ProductDetails } from './types'
+export { getCatalogProducts, getProductBySlug } from './api'

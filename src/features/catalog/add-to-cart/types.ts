@@ -1,4 +1,4 @@
-import { CartCurrency } from '@/entities/cart'
+import type { CartCurrency } from '@/entities/cart'
 
 export interface AddToCartButtonProps {
   productId: number
