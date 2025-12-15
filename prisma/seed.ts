@@ -38,17 +38,12 @@ async function main() {
 
   console.log(`Admin user created successfully with ${adminUser.email}`)
   console.log(`Password, hash demo: ${ADMIN_PASSWORD} -> ${hashedPassword}`)
-  
-  const categoriesToCreate = [
-    'Bondage & Restraints',
-    'Blindfolds & Masks',
-    'Impact Toys',
-    'Accessories',
-  ]
-  
+
+  const categoriesToCreate = ['Bondage & Restraints', 'Blindfolds & Masks', 'Impact Toys', 'Accessories']
+
   await prisma.product.deleteMany()
   await prisma.category.deleteMany()
-  
+
   const createdCategories = []
 
   for (const name of categoriesToCreate) {
@@ -61,11 +56,9 @@ async function main() {
     createdCategories.push(category)
   }
   console.log(`Create ${createdCategories.length} categories.`)
-  
-  const categoryByName = Object.fromEntries(
-    createdCategories.map((c) => [c.name, c]),
-  )
-  
+
+  const categoryByName = Object.fromEntries(createdCategories.map((c) => [c.name, c]))
+
   const productsData = [
     {
       name: 'Soft Cotton Cuffs (Red)',
@@ -74,9 +67,7 @@ async function main() {
       stock: 20,
       description:
         'Soft padded cotton cuffs for comfortable beginner-friendly bondage. Adjustable size with secure metal D-rings.',
-      images: [
-        'https://placehold.co/600x600/111111/F5F5F5?text=Cotton+Cuffs+Red',
-      ],
+      images: ['https://placehold.co/600x600/111111/F5F5F5?text=Cotton+Cuffs+Red'],
     },
     {
       name: 'Soft Cotton Cuffs (Black)',
@@ -85,9 +76,7 @@ async function main() {
       stock: 18,
       description:
         'Classic black cuffs with soft inner lining for longer roleplay sessions. Metal hardware for reliable fixation.',
-      images: [
-        'https://placehold.co/600x600/111111/F5F5F5?text=Cotton+Cuffs+Black',
-      ],
+      images: ['https://placehold.co/600x600/111111/F5F5F5?text=Cotton+Cuffs+Black'],
     },
     {
       name: 'Silky Bondage Rope 10m',
@@ -96,9 +85,7 @@ async function main() {
       stock: 30,
       description:
         'Smooth braided rope designed for body-safe bondage. Medium thickness and soft texture for comfortable tying.',
-      images: [
-        'https://placehold.co/600x600/111111/F5F5F5?text=Bondage+Rope',
-      ],
+      images: ['https://placehold.co/600x600/111111/F5F5F5?text=Bondage+Rope'],
     },
     {
       name: 'Beginner Metal Cuffs',
@@ -107,9 +94,7 @@ async function main() {
       stock: 25,
       description:
         'Metal cuffs with safety mechanism and included keys. Good option for those who prefer a more solid restraint.',
-      images: [
-        'https://placehold.co/600x600/111111/F5F5F5?text=Metal+Cuffs',
-      ],
+      images: ['https://placehold.co/600x600/111111/F5F5F5?text=Metal+Cuffs'],
     },
     {
       name: 'Blindfold Classic Black',
@@ -118,20 +103,15 @@ async function main() {
       stock: 40,
       description:
         'Soft black blindfold that blocks light and helps focus on sensations. Elastic strap fits most head sizes.',
-      images: [
-        'https://placehold.co/600x600/111111/F5F5F5?text=Blindfold+Black',
-      ],
+      images: ['https://placehold.co/600x600/111111/F5F5F5?text=Blindfold+Black'],
     },
     {
       name: 'Feather Tickler',
       categoryName: 'Accessories',
       price: '100.00',
       stock: 35,
-      description:
-        'Light feather tickler for gentle sensory play. Works well together with blindfolds and restraints.',
-      images: [
-        'https://placehold.co/600x600/111111/F5F5F5?text=Feather+Tickler',
-      ],
+      description: 'Light feather tickler for gentle sensory play. Works well together with blindfolds and restraints.',
+      images: ['https://placehold.co/600x600/111111/F5F5F5?text=Feather+Tickler'],
     },
     {
       name: 'First Time Flogger',
@@ -140,9 +120,7 @@ async function main() {
       stock: 22,
       description:
         'Lightweight flogger suitable for beginners. Flexible falls and comfortable handle for controlled impact.',
-      images: [
-        'https://placehold.co/600x600/111111/F5F5F5?text=First+Time+Flogger',
-      ],
+      images: ['https://placehold.co/600x600/111111/F5F5F5?text=First+Time+Flogger'],
     },
     {
       name: 'Leather Paddle',
@@ -151,9 +129,7 @@ async function main() {
       stock: 15,
       description:
         'Compact leather paddle for precise impact play. One side is smoother, the other slightly firmer for different sensations.',
-      images: [
-        'https://placehold.co/600x600/111111/F5F5F5?text=Leather+Paddle',
-      ],
+      images: ['https://placehold.co/600x600/111111/F5F5F5?text=Leather+Paddle'],
     },
     {
       name: 'Bondage Tape (Red)',
@@ -162,9 +138,7 @@ async function main() {
       stock: 28,
       description:
         'Self-adhesive bondage tape that sticks to itself but not to skin or hair. Reusable and easy to remove.',
-      images: [
-        'https://placehold.co/600x600/111111/F5F5F5?text=Bondage+Tape+Red',
-      ],
+      images: ['https://placehold.co/600x600/111111/F5F5F5?text=Bondage+Tape+Red'],
     },
     {
       name: 'Blindfold & Cuffs Set',
@@ -173,9 +147,7 @@ async function main() {
       stock: 12,
       description:
         'Starter set that combines a soft blindfold and wrist cuffs. Simple way to create a basic restraint scenario.',
-      images: [
-        'https://placehold.co/600x600/111111/F5F5F5?text=Blindfold%2BCuffs',
-      ],
+      images: ['https://placehold.co/600x600/111111/F5F5F5?text=Blindfold%2BCuffs'],
     },
     {
       name: 'Collar with Leash',
@@ -184,9 +156,7 @@ async function main() {
       stock: 14,
       description:
         'Adjustable collar with detachable leash. Soft inner side and sturdy hardware for comfortable guided play.',
-      images: [
-        'https://placehold.co/600x600/111111/F5F5F5?text=Collar+%26+Leash',
-      ],
+      images: ['https://placehold.co/600x600/111111/F5F5F5?text=Collar+%26+Leash'],
     },
     {
       name: 'Basic Nipple Clamps',
@@ -195,21 +165,17 @@ async function main() {
       stock: 18,
       description:
         'Adjustable clamps with soft tips. Tension can be tuned to personal comfort level for controlled stimulation.',
-      images: [
-        'https://placehold.co/600x600/111111/F5F5F5?text=Nipple+Clamps',
-      ],
+      images: ['https://placehold.co/600x600/111111/F5F5F5?text=Nipple+Clamps'],
     },
   ]
-  
+
   const prismaProductsData = productsData.map((product) => {
     const category = categoryByName[product.categoryName]
-    
+
     if (!category) {
-      throw new Error(
-        `Category "${product.categoryName}" not found for product "${product.name}"`,
-      )
+      throw new Error(`Category "${product.categoryName}" not found for product "${product.name}"`)
     }
-    
+
     return {
       name: product.name,
       slug: slugify(product.name),
