@@ -38,11 +38,17 @@ async function main() {
 
   console.log(`Admin user created successfully with ${adminUser.email}`)
   console.log(`Password, hash demo: ${ADMIN_PASSWORD} -> ${hashedPassword}`)
-
-  const categoriesToCreate = ['Electronics', 'Clothing', 'Books', 'Home and Garden']
-
+  
+  const categoriesToCreate = [
+    'Bondage & Restraints',
+    'Blindfolds & Masks',
+    'Impact Toys',
+    'Accessories',
+  ]
+  
   await prisma.product.deleteMany()
   await prisma.category.deleteMany()
+  
   const createdCategories = []
 
   for (const name of categoriesToCreate) {
@@ -55,34 +61,172 @@ async function main() {
     createdCategories.push(category)
   }
   console.log(`Create ${createdCategories.length} categories.`)
-
-  const productsToCreate = 15
-  const productsData = []
-
-  for (let i = 1; i <= productsToCreate; i++) {
-    const categoryIndex = i % createdCategories.length
-    const category = createdCategories[categoryIndex]
-    const name = `${category.name} Product #${i}`
-
-    const price = Math.floor(Math.random() * 900 + 100) + Math.random() // от 100 до 100
-    const stock = Math.floor(Math.random() * 100) + 1 // от 1 до 100
-
-    productsData.push({
-      name,
-      slug: slugify(name),
-      description: `Detailed description for ${name}. This is a test product in the "${category.name}" category.`,
-      price: price.toFixed(2),
-      images: [`https://picsum.photos/id/${100 + i}/300/300`, `https://picsum.photos/id/${100 + i + 1}/300/300`],
-      stock,
+  
+  const categoryByName = Object.fromEntries(
+    createdCategories.map((c) => [c.name, c]),
+  )
+  
+  const productsData = [
+    {
+      name: 'Soft Cotton Cuffs (Red)',
+      categoryName: 'Bondage & Restraints',
+      price: '200.00',
+      stock: 20,
+      description:
+        'Soft padded cotton cuffs for comfortable beginner-friendly bondage. Adjustable size with secure metal D-rings.',
+      images: [
+        'https://placehold.co/600x600/111111/F5F5F5?text=Cotton+Cuffs+Red',
+      ],
+    },
+    {
+      name: 'Soft Cotton Cuffs (Black)',
+      categoryName: 'Bondage & Restraints',
+      price: '210.00',
+      stock: 18,
+      description:
+        'Classic black cuffs with soft inner lining for longer roleplay sessions. Metal hardware for reliable fixation.',
+      images: [
+        'https://placehold.co/600x600/111111/F5F5F5?text=Cotton+Cuffs+Black',
+      ],
+    },
+    {
+      name: 'Silky Bondage Rope 10m',
+      categoryName: 'Bondage & Restraints',
+      price: '250.00',
+      stock: 30,
+      description:
+        'Smooth braided rope designed for body-safe bondage. Medium thickness and soft texture for comfortable tying.',
+      images: [
+        'https://placehold.co/600x600/111111/F5F5F5?text=Bondage+Rope',
+      ],
+    },
+    {
+      name: 'Beginner Metal Cuffs',
+      categoryName: 'Bondage & Restraints',
+      price: '190.00',
+      stock: 25,
+      description:
+        'Metal cuffs with safety mechanism and included keys. Good option for those who prefer a more solid restraint.',
+      images: [
+        'https://placehold.co/600x600/111111/F5F5F5?text=Metal+Cuffs',
+      ],
+    },
+    {
+      name: 'Blindfold Classic Black',
+      categoryName: 'Blindfolds & Masks',
+      price: '150.00',
+      stock: 40,
+      description:
+        'Soft black blindfold that blocks light and helps focus on sensations. Elastic strap fits most head sizes.',
+      images: [
+        'https://placehold.co/600x600/111111/F5F5F5?text=Blindfold+Black',
+      ],
+    },
+    {
+      name: 'Feather Tickler',
+      categoryName: 'Accessories',
+      price: '100.00',
+      stock: 35,
+      description:
+        'Light feather tickler for gentle sensory play. Works well together with blindfolds and restraints.',
+      images: [
+        'https://placehold.co/600x600/111111/F5F5F5?text=Feather+Tickler',
+      ],
+    },
+    {
+      name: 'First Time Flogger',
+      categoryName: 'Impact Toys',
+      price: '190.00',
+      stock: 22,
+      description:
+        'Lightweight flogger suitable for beginners. Flexible falls and comfortable handle for controlled impact.',
+      images: [
+        'https://placehold.co/600x600/111111/F5F5F5?text=First+Time+Flogger',
+      ],
+    },
+    {
+      name: 'Leather Paddle',
+      categoryName: 'Impact Toys',
+      price: '230.00',
+      stock: 15,
+      description:
+        'Compact leather paddle for precise impact play. One side is smoother, the other slightly firmer for different sensations.',
+      images: [
+        'https://placehold.co/600x600/111111/F5F5F5?text=Leather+Paddle',
+      ],
+    },
+    {
+      name: 'Bondage Tape (Red)',
+      categoryName: 'Bondage & Restraints',
+      price: '170.00',
+      stock: 28,
+      description:
+        'Self-adhesive bondage tape that sticks to itself but not to skin or hair. Reusable and easy to remove.',
+      images: [
+        'https://placehold.co/600x600/111111/F5F5F5?text=Bondage+Tape+Red',
+      ],
+    },
+    {
+      name: 'Blindfold & Cuffs Set',
+      categoryName: 'Bondage & Restraints',
+      price: '320.00',
+      stock: 12,
+      description:
+        'Starter set that combines a soft blindfold and wrist cuffs. Simple way to create a basic restraint scenario.',
+      images: [
+        'https://placehold.co/600x600/111111/F5F5F5?text=Blindfold%2BCuffs',
+      ],
+    },
+    {
+      name: 'Collar with Leash',
+      categoryName: 'Accessories',
+      price: '260.00',
+      stock: 14,
+      description:
+        'Adjustable collar with detachable leash. Soft inner side and sturdy hardware for comfortable guided play.',
+      images: [
+        'https://placehold.co/600x600/111111/F5F5F5?text=Collar+%26+Leash',
+      ],
+    },
+    {
+      name: 'Basic Nipple Clamps',
+      categoryName: 'Accessories',
+      price: '220.00',
+      stock: 18,
+      description:
+        'Adjustable clamps with soft tips. Tension can be tuned to personal comfort level for controlled stimulation.',
+      images: [
+        'https://placehold.co/600x600/111111/F5F5F5?text=Nipple+Clamps',
+      ],
+    },
+  ]
+  
+  const prismaProductsData = productsData.map((product) => {
+    const category = categoryByName[product.categoryName]
+    
+    if (!category) {
+      throw new Error(
+        `Category "${product.categoryName}" not found for product "${product.name}"`,
+      )
+    }
+    
+    return {
+      name: product.name,
+      slug: slugify(product.name),
+      description: product.description,
+      price: product.price, // Decimal в Prisma можно задавать строкой
+      images: product.images,
+      stock: product.stock,
       isActive: true,
       categoryId: category.id,
-    })
-  }
+    }
+  })
 
   await prisma.product.createMany({
-    data: productsData,
+    data: prismaProductsData,
   })
-  console.log(`${productsToCreate} test products created.`)
+  console.log(`${prismaProductsData.length} BDSM products created.`)
+  console.log('Seed finished.')
 }
 
 main()
