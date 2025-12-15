@@ -1,11 +1,13 @@
 import Link from 'next/link'
 import type { ProductListItem } from '@/entities/product'
+import { AddToCartButton } from '@/features/catalog/add-to-cart/ui'
 
 interface ProductCardProps {
   product: ProductListItem
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const currency = 'MDL'
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
       <Link href={`/catalog/${product.slug}`} className="flex flex-1 flex-col">
@@ -30,7 +32,15 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
       </Link>
-      {/*Button Add to cart*/}
+      <div className="border-t border-zinc-200 p-4">
+        <AddToCartButton
+          productId={product.id}
+          name={product.name}
+          price={product.price}
+          currency={currency}
+          quantity={1}
+        />
+      </div>
     </article>
   )
 }
