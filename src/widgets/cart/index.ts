@@ -1,1 +1,1 @@
-export { CartDetailsStatic } from './ui/CartDetailsStatic'
+export { CartDetails } from './ui/CartDetails'
