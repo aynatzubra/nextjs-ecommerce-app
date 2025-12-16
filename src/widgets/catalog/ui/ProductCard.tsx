@@ -39,6 +39,7 @@ export function ProductCard({ product }: ProductCardProps) {
           name={product.name}
           price={product.price}
           currency={currency}
+          imageUrl={product.imageUrl}
           quantity={1}
         />
       </div>

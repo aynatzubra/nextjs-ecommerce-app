@@ -84,6 +84,7 @@ export function ProductDetailsView({ product }: ProductDetailsProps) {
               productId={product.id}
               name={product.name}
               price={product.price}
+              imageUrl={product.images[0]}
               currency={currency}
               quantity={quantity}
               className="w-full rounded-full bg-zinc-900 px-4 py-3 text-sm font-medium text-zinc-50 hover:bg-zinc-800"

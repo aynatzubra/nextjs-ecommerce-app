@@ -3,7 +3,15 @@
 import { useCart } from '@/entities/cart'
 import { AddToCartButtonProps } from '@/features/catalog/add-to-cart/types'
 
-export function AddToCartButton({ productId, name, price, currency, quantity = 1, className }: AddToCartButtonProps) {
+export function AddToCartButton({
+  productId,
+  name,
+  price,
+  currency,
+  imageUrl,
+  quantity = 1,
+  className,
+}: AddToCartButtonProps) {
   const { addItem } = useCart()
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -16,6 +24,7 @@ export function AddToCartButton({ productId, name, price, currency, quantity = 1
         name,
         price,
         currency,
+        imageUrl,
       },
       quantity,
     )

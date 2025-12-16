@@ -83,7 +83,7 @@ export function CartDetails() {
                 <td className="p-4">
                   <div className="w-16 h-16 bg-purple-100 p-1">
                     <img
-                      src={item.imageUrl}
+                      src={item.imageUrl ?? 'https://placehold.co/100x100/111111/F5F5F5?text=Img'}
                       alt={item.name}
                       className="w-full h-full object-cover mix-blend-multiply"
                     />

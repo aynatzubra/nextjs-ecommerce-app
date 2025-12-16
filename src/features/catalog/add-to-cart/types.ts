@@ -7,4 +7,5 @@ export interface AddToCartButtonProps {
   currency: CartCurrency
   quantity?: number
   className?: string
+  imageUrl?: string
 }
