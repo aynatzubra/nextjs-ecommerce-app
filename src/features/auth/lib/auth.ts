@@ -4,12 +4,17 @@ import GoogleProvider from 'next-auth/providers/google'
 
 import { jwtCallback, sessionCallback } from '@/features/auth/lib/callbacks'
 import { prisma } from '@/lib/prisma'
+import Credentials from 'next-auth/providers/credentials'
+import { credentialsSchema } from '@/features/auth/lib/validations'
+import bcrypt from 'bcryptjs'
 
 declare module 'next-auth' {
   interface Session {
     user: DefaultSession['user'] & {
       id: string //userId
       role: 'ADMIN' | 'USER'
+      email?: string | null
+      name?: string | null
     }
   }
 }
@@ -37,6 +42,36 @@ export const {
     GoogleProvider({
       clientId: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
+    }),
+    Credentials({
+      credentials: {
+        username: { label: 'Username' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        const parsed = credentialsSchema.safeParse(credentials)
+        if (!parsed.success) return null
+
+        const { email, password } = parsed.data
+
+        const user = await prisma.user.findUnique({
+          where: { email },
+        })
+
+        if (!user || !user.passwordHash) {
+          return null
+        }
+
+        const isValid = await bcrypt.compare(password, user.passwordHash)
+        if (!isValid) return null
+
+        return {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          name: user.name,
+        }
+      },
     }),
   ],
   callbacks: {
