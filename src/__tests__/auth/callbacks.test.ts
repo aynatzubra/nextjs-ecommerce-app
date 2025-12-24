@@ -7,6 +7,7 @@ vi.mock('@/lib/prisma', () => ({
 
 const { prisma } = await import('../../lib/prisma') //because Vitest work's with ESM
 import { jwtCallback, sessionCallback } from '@/features/auth/lib/callbacks'
+import { Session } from 'next-auth'
 
 describe('Auth Callbacks Logic (Role Inject)', () => {
   beforeEach(() => {
@@ -33,12 +34,14 @@ describe('Auth Callbacks Logic (Role Inject)', () => {
 
   it('should copy role and id from JWT token to the session object without querying DB', async () => {
     const mockTokenWithData = { id: 'token-id-456', role: 'USER' }
-    const initialSession = { user: {} }
+    const initialSession = {
+      user: { name: 'Test User', email: 'test@test.com' },
+      expires: new Date().toISOString(),
+    } as Session
 
     const resultSession = await sessionCallback({
       session: initialSession,
       token: mockTokenWithData,
-      user: undefined,
     })
 
     expect(prisma.user.findUnique).not.toHaveBeenCalled()

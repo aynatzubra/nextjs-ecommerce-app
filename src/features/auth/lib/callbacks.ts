@@ -1,22 +1,27 @@
-import { prisma } from '@/lib/prisma'
+import { JWT } from 'next-auth/jwt'
+import { Session, User } from 'next-auth'
 
-export async function jwtCallback({ token, user }: any) {
+type JwtCallbackParams = {
+  token: JWT
+  user?: User
+}
+
+export async function jwtCallback({ token, user }: JwtCallbackParams): Promise<JWT> {
   if (user) {
     token.id = user.id
-    const dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: { role: true },
-    })
-    token.role = dbUser?.role || 'USER'
+    token.role = (user as any).role
   }
   return token
 }
 
-export async function sessionCallback({ session, token }: any) {
-  if (token.id) {
+type SessionCallbackParams = {
+  session: Session
+  token: JWT
+}
+
+export async function sessionCallback({ session, token }: SessionCallbackParams): Promise<Session> {
+  if (session.user) {
     session.user.id = token.id as string
-  }
-  if (token.role) {
     session.user.role = token.role as 'ADMIN' | 'USER'
   }
   return session
