@@ -1,17 +1,18 @@
-'use client'
+import { auth } from '@/features/auth/lib/auth'
+import { redirect } from 'next/navigation'
+import { RegisterForm } from '@/features/auth/ui/RegisterForm'
 
-import { registerUser } from '@/features/auth/actions/register'
+export default async function RegisterPage() {
+  const session = await auth()
 
-export default function RegisterPage() {
-  const handleTest = async () => {
-    const result = await registerUser({
-      email: 'test@test.com',
-      password: '123456',
-      confirmPassword: '123456',
-    })
-
-    console.log(result)
+  if (session) {
+    redirect('/')
   }
 
-  return <button onClick={handleTest}>Test register</button>
+  return (
+    <div className="container max-w-md py-10">
+      <h1 className="text-2xl font-semibold mb-6">Create account</h1>
+      <RegisterForm />
+    </div>
+  )
 }
