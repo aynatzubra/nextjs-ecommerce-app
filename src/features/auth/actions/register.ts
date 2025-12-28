@@ -1,40 +1,21 @@
 'use server'
 
-import bcrypt from 'bcryptjs'
-import { registerSchema } from '@/features/auth/lib/validations'
-import { prisma } from '@/lib/prisma'
-import { Prisma } from '@prisma/client'
+import { RegisterInput, registerSchema } from '@/features/auth/lib/validations'
+import { registerUserService } from '@/features/auth/services/registerUser.service'
 
-export async function registerUser(input: unknown) {
-  const parsed = registerSchema.safeParse(input)
+export async function registerUser(data: RegisterInput) {
+  const parsed = registerSchema.safeParse(data)
   if (!parsed.success) {
     return { error: 'Invalid input data' }
   }
 
-  const { email, password, name } = parsed.data
-
-  const existingUser = await prisma.user.findUnique({
-    where: { email },
-  })
-
-  if (existingUser) {
-    return { error: 'User with this email already exists' }
-  }
-
-  const passwordHash = await bcrypt.hash(password, 10)
-
   try {
-    const user = await prisma.user.create({
-      data: { email, name, passwordHash, role: 'USER' },
-    })
+    const user = await registerUserService(parsed.data)
     return { success: true, userId: user.id }
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2002') {
-        return { error: 'User already exists' }
-      }
+  } catch (e) {
+    if (e instanceof Error && e.message === 'USER_ALREADY_EXISTS') {
+      return { error: 'User with this email already exists' }
     }
-
-    throw error
+    return { error: 'Unexpected error' }
   }
 }
