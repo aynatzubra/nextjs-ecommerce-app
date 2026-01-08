@@ -1,17 +1,28 @@
 'use client'
 
-import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { EyeIcon } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
+import React, { useState } from 'react'
 
-// todo: react-hook-form
+import { cn } from '@/shared/lib/cn'
+
+// TODO: react-hook-form (validation, submit lock)
+// TODO: forgot password flow
+// TODO: remember me (session)
 export function LoginForm() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl') ?? '/account/profile'
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+
+    if (loading) return
+
     setError(null)
     setLoading(true)
 
@@ -30,17 +41,91 @@ export function LoginForm() {
       return
     }
 
-    router.push('/')
+    router.push(callbackUrl)
     router.refresh()
   }
+
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <input name="email" type="email" placeholder="Email" required />
-      <input name="password" type="password" placeholder="Password" required />
+    <div className="bg-white p-8 rounded-lg border border-gray-200 shadow-sm">
+      <form onSubmit={onSubmit} className="space-y-6">
+        {/* Username/Email */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Username or email address <span className="text-red-500">*</span>
+          </label>
+          <input
+            name="email"
+            type="email"
+            required
+            className="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
+          />
+        </div>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+        {/* Password */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Password <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <input
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              required
+              className="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+            >
+              <EyeIcon size={20} />
+            </button>
+          </div>
+        </div>
 
-      <button disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</button>
-    </form>
+        {/* Checkbox Remember me */}
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="remember"
+            disabled
+            className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+          />
+          <label htmlFor="remember" className="text-sm text-gray-600">
+            Remember me
+          </label>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex flex-col gap-4 pt-2">
+          <div className="flex items-center gap-4">
+            <button
+              type="submit"
+              disabled={loading}
+              className={cn(
+                'px-8 py-2 bg-[#e3122b] hover:bg-red-700 text-white font-bold rounded-full transition-colors uppercase text-sm tracking-wider',
+                loading ? 'opacity-50 cursor-not-allowed' : '',
+              )}
+            >
+              {loading ? 'Logging in...' : 'Log in'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push('/register')}
+              className="px-8 py-2 border-2 border-[#e3122b] text-[#e3122b] hover:bg-red-50 font-bold rounded-full transition-colors uppercase text-sm tracking-wider"
+            >
+              Register
+            </button>
+          </div>
+
+          <button type="button" disabled className="text-left text-sm text-gray-400 mt-2 cursor-not-allowed">
+            Lost your password?
+          </button>
+        </div>
+
+        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+      </form>
+    </div>
   )
 }
