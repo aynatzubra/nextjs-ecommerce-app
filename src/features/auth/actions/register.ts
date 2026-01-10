@@ -6,7 +6,7 @@ import { registerUserService } from '@/features/auth/services/registerUser.servi
 export async function registerUser(data: RegisterInput) {
   const parsed = registerSchema.safeParse(data)
   if (!parsed.success) {
-    return { error: 'Invalid input data' }
+    return { success: false, error: 'Invalid input data' }
   }
 
   try {
@@ -14,7 +14,7 @@ export async function registerUser(data: RegisterInput) {
     return { success: true, userId: user.id }
   } catch (e) {
     if (e instanceof Error && e.message === 'USER_ALREADY_EXISTS') {
-      return { error: 'User with this email already exists' }
+      return { error: 'Unable to create account' }
     }
     return { error: 'Unexpected error' }
   }
