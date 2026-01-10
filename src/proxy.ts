@@ -35,5 +35,5 @@ export default auth((req) => {
 })
 
 export const config = {
-  matcher: ['/account/:path*', '/api/admin/:path*', '/login', '/register'],
+  matcher: ['/account', '/account/:path*', '/api/admin/:path*', '/login', '/register'],
 }
