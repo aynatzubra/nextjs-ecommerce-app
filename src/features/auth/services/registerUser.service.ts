@@ -16,7 +16,7 @@ export async function registerUserService({
   try {
     return await prisma.user.create({
       data: {
-        email,
+        email: email.toLowerCase(),
         name,
         passwordHash,
         role: 'USER',
