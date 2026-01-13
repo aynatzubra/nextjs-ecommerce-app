@@ -14,8 +14,8 @@ export async function registerUser(data: RegisterInput) {
     return { success: true, userId: user.id }
   } catch (e) {
     if (e instanceof Error && e.message === 'USER_ALREADY_EXISTS') {
-      return { error: 'Unable to create account' }
+      return { success: false, error: 'Unable to create account' }
     }
-    return { error: 'Unexpected error' }
+    return { success: false, error: 'Unexpected error' }
   }
 }

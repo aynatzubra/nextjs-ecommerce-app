@@ -62,6 +62,10 @@ export const {
           return null
         }
 
+        if (!user.emailVerified) {
+          throw new Error('EMAIL_NOT_VERIFIED')
+        }
+
         const isValid = await bcrypt.compare(password, user.passwordHash)
         if (!isValid) return null
 

@@ -4,6 +4,7 @@ import { registerUser } from '@/features/auth/actions/register'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { EyeIcon } from 'lucide-react'
+import { registerSchema } from '@/features/auth/lib/validations'
 
 export function RegisterForm() {
   const router = useRouter()
@@ -19,24 +20,34 @@ export function RegisterForm() {
     setLoading(true)
 
     const formData = new FormData(e.currentTarget)
+    const rawData = Object.fromEntries(formData.entries())
 
-    const res = await registerUser({
-      email: formData.get('email'),
-      password: formData.get('password'),
-      confirmPassword: formData.get('confirmPassword'),
-      name: formData.get('name'),
-    })
+    if (rawData.name === '') {
+      delete rawData.name
+    }
 
-    if (!res.success) {
-      // setError(res.error as string)
-      setError('Unable to create account')
+    const validationResult = registerSchema.safeParse(rawData)
+
+    if (!validationResult.success) {
+      setError(validationResult.error.issues[0].message)
+      setLoading(false)
       return
     }
 
-    setLoading(false)
+    try {
+      const res = await registerUser(validationResult.data)
 
-    router.push('/verify-email')
-    router.refresh()
+      if (res.error) {
+        throw new Error(res.error)
+      }
+
+      router.push('/verify-email')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unable to create account'
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
