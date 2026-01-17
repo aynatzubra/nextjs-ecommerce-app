@@ -19,21 +19,17 @@ export default auth((req) => {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  if (session && isAuthPage) {
-    return NextResponse.redirect(new URL('/account/profile', req.url))
-  }
-
   if (session && isApiAdminRoute && session.user.role !== 'ADMIN') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  if (session && isProtectedAccountRoute && session.user.role === 'USER') {
-    return NextResponse.redirect(new URL('/info', req.url))
+  if (session && isAuthPage) {
+    return NextResponse.redirect(new URL('/account', req.url))
   }
 
   return NextResponse.next()
 })
 
 export const config = {
-  matcher: ['/account', '/account/:path*', '/api/admin/:path*', '/login', '/register'],
+  matcher: ['/account/:path*', '/api/admin/:path*', '/login', '/register'],
 }
