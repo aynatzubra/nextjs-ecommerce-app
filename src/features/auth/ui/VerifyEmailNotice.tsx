@@ -8,6 +8,8 @@ export function VerifyEmailNotice() {
   const router = useRouter()
   const sp = useSearchParams()
 
+  const devVerifyLink = sp.get('devVerifyLink')
+
   // email to /verify-email through query
   const email = sp.get('email') ?? ''
 
@@ -43,6 +45,15 @@ export function VerifyEmailNotice() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="max-w-md text-center space-y-4">
         <h1 className="text-2xl font-semibold">Check your email</h1>
+
+        {devVerifyLink && (
+          <p className="text-sm">
+            DEV:{' '}
+            <a className="underline" href={devVerifyLink}>
+              Open verification link
+            </a>
+          </p>
+        )}
 
         <p className="text-gray-600">We’ve sent a verification link{email ? ` to ${email}` : ''}.</p>
 

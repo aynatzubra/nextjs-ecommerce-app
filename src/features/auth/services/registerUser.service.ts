@@ -45,7 +45,8 @@ export async function registerUserService({
     })
 
     console.log('VERIFY LINK:', `http://localhost:3000/verify-email/${token}`)
-    return user
+
+    return { user, token }
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       throw new Error(REGISTER_ERRORS.USER_ALREADY_EXISTS)

@@ -37,11 +37,15 @@ export function RegisterForm() {
     try {
       const res = await registerUser(validationResult.data)
 
-      if (res.error) {
+      if (!res.success) {
         throw new Error(res.error)
       }
 
-      router.push(`/verify-email?email=${encodeURIComponent(validationResult.data.email)}`)
+      router.push(
+        `/verify-email?email=${encodeURIComponent(validationResult.data.email)}${
+          res.devVerifyLink ? `&devVerifyLink=${encodeURIComponent(res.devVerifyLink)}` : ''
+        }`,
+      )
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unable to create account'
       setError(message)
