@@ -6,6 +6,7 @@ import { signIn } from 'next-auth/react'
 import React, { useState } from 'react'
 
 import { cn } from '@/shared/lib/cn'
+import { checkLogin } from '@/features/auth/actions/checkLogin'
 
 // TODO: react-hook-form (validation, submit lock)
 // TODO: forgot password flow
@@ -16,7 +17,7 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') ?? '/account/profile'
+  const callbackUrl = searchParams.get('callbackUrl') ?? '/account'
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -27,22 +28,43 @@ export function LoginForm() {
     setLoading(true)
 
     const formData = new FormData(e.currentTarget)
+    const email = String(formData.get('email') ?? '')
+    const password = String(formData.get('password') ?? '')
 
-    const res = await signIn('credentials', {
-      email: formData.get('email'),
-      password: formData.get('password'),
-      redirect: false,
-    })
+    try {
+      const check = await checkLogin({ email, password })
 
-    setLoading(false)
+      if (!check.ok) {
+        if (check.reason === 'EMAIL_NOT_VERIFIED') {
+          setError('Please verify your email before logging in.')
+          return
+        }
+        if (check.reason === 'INVALID_INPUT') {
+          setError('Please enter a valid email and password.')
+          return
+        }
+        setError('Invalid email or password')
+        return
+      }
 
-    if (res?.error) {
-      setError('Invalid email or password')
-      return
+      const res = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      })
+
+      if (res?.error) {
+        setError('Invalid email or password')
+        return
+      }
+
+      router.push(callbackUrl)
+      router.refresh()
+    } catch (error) {
+      setError('Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
     }
-
-    router.push(callbackUrl)
-    router.refresh()
   }
 
   return (
