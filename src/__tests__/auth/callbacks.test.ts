@@ -14,22 +14,19 @@ describe('Auth Callbacks Logic (Role Inject)', () => {
     vi.clearAllMocks()
   })
 
-  it('should fetch ADMIN role from DB and inject it into the JWT token on signIn', async () => {
+  it('should inject id and role into JWT token on signIn WITHOUT querying DB', async () => {
     mockPrisma.user.findUnique.mockResolvedValue({ role: 'ADMIN' })
 
-    const mockUser = { id: 'user-id-789', name: 'Test User' }
+    const mockUser = { id: 'user-id-789', role: 'ADMIN', name: 'Test User' }
     const initialToken = { sub: 'user-id-789' }
 
     const resultToken = await jwtCallback({ token: initialToken, user: mockUser })
 
-    expect(prisma.user.findUnique).toHaveBeenCalledOnce()
-    expect(prisma.user.findUnique).toHaveBeenCalledWith({
-      where: { id: 'user-id-789' },
-      select: { role: true },
-    })
+    //DB dont touch - role comes from authorize()
+    expect(mockPrisma.user.findUnique).not.toHaveBeenCalled()
 
-    expect(resultToken.role).toBe('ADMIN')
     expect(resultToken.id).toBe('user-id-789')
+    expect(resultToken.role).toBe('ADMIN')
   })
 
   it('should copy role and id from JWT token to the session object without querying DB', async () => {

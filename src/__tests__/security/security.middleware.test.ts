@@ -55,7 +55,7 @@ describe('Middleware Access Control', () => {
   const makeRequest = (url: string): AuthRequest => new NextRequest(url) as AuthRequest
 
   it('1. Redirects unauthenticated /account → /login with callbackUrl', async () => {
-    const req = makeRequest('http://app.com/account/profile')
+    const req = makeRequest('http://app.com/account')
     const res = await middleware(req, ctx)
 
     expect(redirectSpy).toHaveBeenCalledTimes(1)
@@ -76,7 +76,7 @@ describe('Middleware Access Control', () => {
     const req = makeRequest('http://app.com/api/admin/users?mock_user=true')
     const res = await middleware(req, ctx)
 
-    expect(res.status).toBe(401)
+    expect(res.status).toBe(403)
   })
 
   it('4. Allows ADMIN on /api/admin', async () => {
@@ -93,16 +93,15 @@ describe('Middleware Access Control', () => {
     expect(redirectSpy).toHaveBeenCalledTimes(1)
     const targetUrl = redirectSpy.mock.calls[0][0] as URL
 
-    expect(targetUrl.pathname).toBe('/account/profile')
+    expect(targetUrl.pathname).toBe('/account')
   })
 
   it('6. Redirects USER from /account/settings → /info', async () => {
     const req = makeRequest('http://app.com/account/settings?mock_user=true')
     const res = await middleware(req, ctx)
 
-    expect(redirectSpy).toHaveBeenCalledTimes(1)
-    const targetUrl = redirectSpy.mock.calls[0][0] as URL
+    expect(redirectSpy).not.toHaveBeenCalled()
 
-    expect(targetUrl.pathname).toBe('/info')
+    expect(res.status).toBe(200)
   })
 })

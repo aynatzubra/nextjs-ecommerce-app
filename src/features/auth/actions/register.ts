@@ -12,7 +12,7 @@ export async function registerUser(data: RegisterInput) {
   try {
     const { token, user } = await registerUserService(parsed.data)
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
     const devVerifyLink = process.env.NODE_ENV !== 'production' ? `${baseUrl}/verify-email/${token}` : undefined
 
