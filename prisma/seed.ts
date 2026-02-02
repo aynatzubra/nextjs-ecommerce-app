@@ -18,35 +18,35 @@ const slugify = (text: string) => {
 
 async function main() {
   console.log('Prisma server started')
-  
+
   const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, SALT_ROUNDS)
   const adminEmail = 'admin@admin.com'
-  
+
   await prisma.user.deleteMany({
     where: {
       email: adminEmail,
     },
   })
-  
+
   const adminUser = await prisma.user.create({
     data: {
       email: adminEmail,
       name: 'Super Admin',
       role: Role.ADMIN,
-      passwordHash: hashedPassword
+      passwordHash: hashedPassword,
     },
   })
-  
+
   console.log(`Admin user created successfully with ${adminUser.email}`)
   console.log(`Password, hash demo: ${ADMIN_PASSWORD} -> ${hashedPassword}`)
-  
+
   const categoriesToCreate = ['Bondage & Restraints', 'Blindfolds & Masks', 'Impact Toys', 'Accessories']
-  
+
   await prisma.product.deleteMany()
   await prisma.category.deleteMany()
-  
+
   const createdCategories = []
-  
+
   for (const name of categoriesToCreate) {
     const category = await prisma.category.create({
       data: {
@@ -57,9 +57,9 @@ async function main() {
     createdCategories.push(category)
   }
   console.log(`Create ${createdCategories.length} categories.`)
-  
+
   const categoryByName = Object.fromEntries(createdCategories.map((c) => [c.name, c]))
-  
+
   const productsData = [
     {
       name: 'Soft Cotton Cuffs (Red)',
@@ -173,14 +173,14 @@ async function main() {
       images: ['https://placehold.co/600x600/111111/F5F5F5?text=Nipple+Clamps'],
     },
   ]
-  
+
   const prismaProductsData = productsData.map((product) => {
     const category = categoryByName[product.categoryName]
-    
+
     if (!category) {
       throw new Error(`Category "${product.categoryName}" not found for product "${product.name}"`)
     }
-    
+
     return {
       name: product.name,
       slug: slugify(product.name),
@@ -189,10 +189,10 @@ async function main() {
       images: product.images,
       stock: product.stock,
       isActive: product.isActive ?? true,
-      categoryId: category.id
+      categoryId: category.id,
     }
   })
-  
+
   await prisma.product.createMany({
     data: prismaProductsData,
   })

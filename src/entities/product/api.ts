@@ -26,6 +26,7 @@ export async function getCatalogProducts(): Promise<ProductListItem[]> {
       imageUrl: firstImage,
       categoryName: p.category?.name ?? 'Uncategorized',
       inStock: p.stock > 0,
+      stock: p.stock,
     } satisfies ProductListItem
   })
 }

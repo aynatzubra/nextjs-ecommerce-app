@@ -32,10 +32,10 @@ export function AppHeader() {
   }, [pathname])
 
   const dropdownRef = useClickOutside<HTMLDivElement>(() => setDropdownOpen(false))
-  
+
   //todo:move dropdown into a separate component
   //todo:escape key handler into a separate hook
-  
+
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') setDropdownOpen(false)

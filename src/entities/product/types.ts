@@ -7,6 +7,7 @@ export interface ProductListItem {
   imageUrl: string
   categoryName: string
   inStock: boolean
+  stock: number
 }
 
 export interface ProductDetails {
