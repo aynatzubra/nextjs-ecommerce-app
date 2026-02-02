@@ -1,3 +1,3 @@
-export type { ProductListItem, ProductDetails } from './types'
-export { getCatalogProducts, getProductBySlug } from './api'
-export type { CatalogSearchParams, CatalogQuery, CatalogSort, CatalogPaginationMeta, CatalogResult } from './model'
+export * from './types'
+export * from './model'
+export * from './api'
