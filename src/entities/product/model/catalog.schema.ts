@@ -18,4 +18,4 @@ export const catalogSearchParamsSchema = z
     page: nonEmptyTrimmed,
     limit: nonEmptyTrimmed,
   })
-  .strict()
+  .strip()

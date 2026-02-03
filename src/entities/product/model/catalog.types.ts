@@ -1,4 +1,4 @@
-import { ProductListItem } from '@/entities/product/types/ProductListItem'
+import { ProductListItem } from '@/entities/product'
 
 export type CatalogSearchParams = {
   category?: string
