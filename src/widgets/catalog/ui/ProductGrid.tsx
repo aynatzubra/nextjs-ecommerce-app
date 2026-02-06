@@ -1,5 +1,5 @@
 import type { ProductListItem } from '@/entities/product'
-import { ProductCard } from './ProductCard'
+import { ProductCard } from '@/widgets/catalog'
 
 interface ProductGridProps {
   products: ProductListItem[]

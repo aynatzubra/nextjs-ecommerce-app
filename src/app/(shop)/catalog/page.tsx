@@ -1,4 +1,4 @@
-import { ProductGrid } from '@/widgets/catalog'
+import { CatalogFilters, ProductGrid } from '@/widgets/catalog'
 import { CatalogSearchParams, getCatalogProductsPage, normalizeCatalogSearchParams } from '@/entities/product'
 
 export const revalidate = 86400 // 24 our
@@ -25,29 +25,15 @@ function toCatalogSearchParams(searchParams: NextSearchParams): CatalogSearchPar
 
 export default async function CatalogPage({ searchParams }: { searchParams: Promise<NextSearchParams> }) {
   const sp = await searchParams
-  // console.log('searchParams:', sp)
   const raw = toCatalogSearchParams(sp)
-  // console.log('raw:', raw)
   const query = normalizeCatalogSearchParams(raw)
-  // console.log('query:', query)
 
   const { items, meta } = await getCatalogProductsPage(query)
   return (
     <section className="space-y-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight">Catalog</h1>
-        <p className="text-sm text-zinc-600">Browse products with URL-driven filter</p>
-
-        {/* to see if URL is work  */}
-        <div className="text-xs text-zinc-500">
-          <span>
-            Page {meta.page} / {meta.totalPages}
-          </span>
-          <span className="mx-2">•</span>
-          <span>{meta.total} items</span>
-          <span className="mx-2">•</span>
-          <span>Limit: {meta.limit}</span>
-        </div>
+        <CatalogFilters />
       </header>
 
       <ProductGrid products={items} />
