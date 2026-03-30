@@ -1,5 +1,9 @@
 import { CatalogFilters, ProductGrid } from '@/widgets/catalog'
 import { CatalogSearchParams, getCatalogProductsPage, normalizeCatalogSearchParams } from '@/entities/product'
+import { getCategoryOptions } from '@/entities/category'
+
+const categoryOptions = await getCategoryOptions()
+const categories = categoryOptions.map((c) => ({ value: c.slug, label: c.name }))
 
 export const revalidate = 86400 // 24 our
 
@@ -33,7 +37,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
     <section className="space-y-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight">Catalog</h1>
-        <CatalogFilters />
+        <CatalogFilters categories={categories} />
       </header>
 
       <ProductGrid products={items} />
