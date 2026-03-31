@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { ProductListItem } from '@/entities/product'
-import { AddToCartButton } from '@/features/catalog/add-to-cart/ui'
+import { AddToCartButton } from '@/features/catalog/add-to-cart'
 import type { CartCurrency } from '@/entities/cart'
 
 interface ProductCardProps {

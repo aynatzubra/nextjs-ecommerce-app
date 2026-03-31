@@ -1,7 +1,7 @@
 'use client'
 
 import { ProductDetails } from '@/entities/product'
-import { AddToCartButton } from '@/features/catalog/add-to-cart/ui'
+import { AddToCartButton } from '@/features/catalog/add-to-cart'
 import { useState } from 'react'
 import type { CartCurrency } from '@/entities/cart'
 
