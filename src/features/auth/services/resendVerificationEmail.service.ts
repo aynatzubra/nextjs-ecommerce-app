@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/shared/lib/prisma'
 import { randomUUID } from 'crypto'
 
 export async function resendVerificationEmailService(email: string) {

@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach, Mock } from 'vitest'
 import { mockPrisma } from '@/test-utils/mockPrisma'
 
-vi.mock('@/lib/prisma', () => ({
+vi.mock('@/shared/lib/prisma', () => ({
   prisma: mockPrisma,
 }))
 

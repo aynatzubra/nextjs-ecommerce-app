@@ -1,7 +1,7 @@
 'use server'
 
 import { credentialsSchema } from '@/features/auth/lib/validations'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/shared/lib/prisma'
 import bcrypt from 'bcryptjs'
 
 export type CheckLoginResult =

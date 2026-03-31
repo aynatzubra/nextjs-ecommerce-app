@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/shared/lib/prisma'
 import { ProductDetails, ProductListItem } from '@/entities/product/types'
 import { CatalogQuery, CatalogResult, CatalogSort } from './model'
 import type { Prisma } from '@prisma/client'

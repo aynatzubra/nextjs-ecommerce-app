@@ -3,7 +3,7 @@ import NextAuth, { DefaultSession } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 
 import { jwtCallback, sessionCallback } from '@/features/auth/lib/callbacks'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/shared/lib/prisma'
 import Credentials from 'next-auth/providers/credentials'
 import { credentialsSchema } from '@/features/auth/lib/validations'
 import bcrypt from 'bcryptjs'

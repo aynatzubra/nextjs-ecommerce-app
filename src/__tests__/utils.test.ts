@@ -1,4 +1,4 @@
-import { sumCalc } from '@/lib/utils'
+import { sumCalc } from '@/shared/lib/utils'
 
 describe('Utility Functions', () => {
   it('should correctly sum two numbers', () => {

@@ -9,7 +9,7 @@ vi.mock('@/features/auth/lib/auth', () => ({
   auth: vi.fn(),
 }))
 
-vi.mock('@/lib/prisma', () => ({
+vi.mock('@/shared/lib/prisma', () => ({
   prisma: mockPrisma,
 }))
 
