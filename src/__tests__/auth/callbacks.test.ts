@@ -5,8 +5,8 @@ vi.mock('@/shared/lib/prisma', () => ({
   prisma: mockPrisma,
 }))
 
-const { prisma } = await import('../../lib/prisma') //because Vitest work's with ESM
-import { jwtCallback, sessionCallback } from '@/features/auth/lib/callbacks'
+const { prisma } = await import('@/shared/lib/prisma') //because Vitest work's with ESM
+import { jwtCallback, sessionCallback } from '@/shared/lib/auth/callbacks'
 import { Session } from 'next-auth'
 
 describe('Auth Callbacks Logic (Role Inject)', () => {

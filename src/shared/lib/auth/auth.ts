@@ -2,7 +2,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter'
 import NextAuth, { DefaultSession } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 
-import { jwtCallback, sessionCallback } from '@/features/auth/lib/callbacks'
+import { jwtCallback, sessionCallback } from '@/shared/lib/auth/callbacks'
 import { prisma } from '@/shared/lib/prisma'
 import Credentials from 'next-auth/providers/credentials'
 import { credentialsSchema } from '@/features/auth/lib/validations'

@@ -2,7 +2,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 
 import type { Metadata } from 'next'
 import './globals.css'
-import { auth } from '@/features/auth/lib/auth'
+import { auth } from '@/shared/lib/auth/auth'
 import { SessionProvider } from 'next-auth/react'
 import { AppHeader } from '@/widgets/layout/AppHeader'
 

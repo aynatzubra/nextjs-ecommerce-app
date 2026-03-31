@@ -1,4 +1,4 @@
-import { auth } from '@/features/auth/lib/auth'
+import { auth } from '@/shared/lib/auth/auth'
 import { redirect } from 'next/navigation'
 import { RegisterForm } from '@/features/auth/ui/RegisterForm'
 

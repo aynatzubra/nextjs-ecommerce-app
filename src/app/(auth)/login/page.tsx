@@ -1,4 +1,4 @@
-import { auth } from '@/features/auth/lib/auth'
+import { auth } from '@/shared/lib/auth/auth'
 import { LoginForm } from '@/features/auth/ui/LoginForm'
 
 export default async function LoginPage() {

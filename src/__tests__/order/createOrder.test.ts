@@ -5,7 +5,7 @@ vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }))
 
-vi.mock('@/features/auth/lib/auth', () => ({
+vi.mock('@/shared/lib/auth/auth', () => ({
   auth: vi.fn(),
 }))
 
@@ -14,7 +14,7 @@ vi.mock('@/shared/lib/prisma', () => ({
 }))
 
 const { revalidatePath } = await import('next/cache')
-const { auth } = await import('@/features/auth/lib/auth')
+const { auth } = await import('@/shared/lib/auth/auth')
 const { createOrderAction } = await import('@/features/order/actions/createOrderAction')
 
 const authMock = auth as Mock

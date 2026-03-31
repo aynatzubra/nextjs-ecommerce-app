@@ -17,7 +17,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { mockContext, type AuthRequest, type MockedContext } from '@/test-utils/mockMiddleware'
 
-jest.mock('@/features/auth/lib/auth', () => ({
+jest.mock('@/shared/lib/auth/auth', () => ({
   auth: jest.fn(
     (handler: (req: AuthRequest, ctx: MockedContext) => Response | Promise<Response>) =>
       async (req: AuthRequest, ctx: MockedContext) => {
