@@ -2,9 +2,19 @@
 
 import { signOut } from 'next-auth/react'
 
-export function LogoutButton({ className = '' }: { className?: string }) {
+interface LogoutButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+
+export function LogoutButton({ onClick, ...props }: LogoutButtonProps) {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    onClick?.(e)
+
+    if (!e.isDefaultPrevented()) {
+      signOut({ callbackUrl: '/' })
+    }
+  }
+
   return (
-    <button type="button" onClick={() => signOut({ callbackUrl: '/' })} className={className}>
+    <button {...props} type="button" onClick={handleClick}>
       Logout
     </button>
   )
