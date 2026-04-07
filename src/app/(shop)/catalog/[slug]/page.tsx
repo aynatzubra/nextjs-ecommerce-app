@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { ProductDetailsView } from '@/widgets/product'
+import { ProductPage } from '@/widgets/product'
 import { getProductBySlug } from '@/entities/product'
 
 interface ProductPageProps {
@@ -10,7 +10,7 @@ interface ProductPageProps {
 
 export const revalidate = 86400
 
-export default async function ProductPage({ params }: ProductPageProps) {
+export default async function ProductPageRoute({ params }: ProductPageProps) {
   const { slug } = await params
   const product = await getProductBySlug(slug)
 
@@ -18,9 +18,5 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound()
   }
 
-  return (
-    <section className="space-y-6">
-      <ProductDetailsView product={product} />
-    </section>
-  )
+  return <ProductPage product={product} />
 }

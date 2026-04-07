@@ -1,48 +1,24 @@
-import { CatalogFilters, ProductGrid } from '@/widgets/catalog'
-import { CatalogSearchParams, getCatalogProductsPage, normalizeCatalogSearchParams } from '@/entities/product'
+import { CatalogPage } from '@/widgets/catalog'
+import { getCatalogProductsPage, normalizeCatalogSearchParams } from '@/entities/product'
+import { toCatalogSearchParams } from '@/entities/product/lib'
 import { getCategoryOptions } from '@/entities/category'
-
-const categoryOptions = await getCategoryOptions()
-const categories = categoryOptions.map((c) => ({ value: c.slug, label: c.name }))
-
-export const revalidate = 86400 // 24 our
 
 type NextSearchParams = Record<string, string | string[] | undefined>
 
-function toCatalogSearchParams(searchParams: NextSearchParams): CatalogSearchParams {
-  const pick = (key: string): string | undefined => {
-    const v = searchParams[key]
-    if (Array.isArray(v)) return v[0]
-    return v
-  }
-
-  return {
-    category: pick('category'),
-    min: pick('min'),
-    max: pick('max'),
-    inStock: pick('inStock'),
-    sort: pick('sort'),
-    page: pick('page'),
-    limit: pick('limit'),
-  }
+type Props = {
+  searchParams: Promise<NextSearchParams> | NextSearchParams
 }
 
-export default async function CatalogPage({ searchParams }: { searchParams: Promise<NextSearchParams> }) {
+export default async function CatalogPageRoute({ searchParams }: Props) {
   const sp = await searchParams
   const raw = toCatalogSearchParams(sp)
   const query = normalizeCatalogSearchParams(raw)
-
-  const { items, meta } = await getCatalogProductsPage(query)
-  return (
-    <section className="space-y-6">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">Catalog</h1>
-        <CatalogFilters categories={categories} />
-      </header>
-
-      <ProductGrid products={items} />
-
-      {/*Pagination UI*/}
-    </section>
-  )
+  
+  const categoryOptions = await getCategoryOptions()
+  
+  const categories = categoryOptions.map((c) => ({ value: c.slug, label: c.name }))
+  
+  const { items } = await getCatalogProductsPage(query)
+  
+  return <CatalogPage products={items} categories={categories}/>
 }
