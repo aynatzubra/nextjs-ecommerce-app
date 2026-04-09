@@ -1,4 +1,4 @@
-import { VerifyEmailNotice } from '@/features/auth/ui/VerifyEmailNotice'
+import { VerifyEmailNotice } from '@/features/auth'
 
 export default function VerifyEmailPage() {
   return <VerifyEmailNotice />
