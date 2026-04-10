@@ -1,13 +1,24 @@
 import { CatalogFilters } from '@/widgets/catalog/ui/CatalogFilters'
 import { ProductGrid } from '@/widgets/catalog/ui/ProductGrid'
 import type { ProductListItem } from '@/entities/product'
+import { CatalogPagination } from '@/widgets/catalog'
+
+interface CatalogPaginationMeta {
+  page: number
+  totalPages: number
+  hasPrev: boolean
+  hasNext: boolean
+}
 
 interface CatalogPageProps {
   products: ProductListItem[]
   categories: { value: string; label: string }[]
+  pagination: CatalogPaginationMeta
 }
 
-export async function CatalogPage({ products, categories }: CatalogPageProps) {
+export function CatalogPage({ products, categories, pagination }: CatalogPageProps) {
+  console.log(pagination)
+  
   return (
     <section className="space-y-6">
       <header className="space-y-2">
@@ -16,8 +27,13 @@ export async function CatalogPage({ products, categories }: CatalogPageProps) {
       </header>
 
       <ProductGrid products={products} />
-
-      {/*Pagination UI*/}
+      
+      <CatalogPagination
+        page={pagination.page}
+        totalPages={pagination.totalPages}
+        hasPrev={pagination.hasPrev}
+        hasNext={pagination.hasNext}
+      />
     </section>
   )
 }

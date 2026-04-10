@@ -18,7 +18,18 @@ export default async function CatalogPageRoute({ searchParams }: Props) {
   
   const categories = categoryOptions.map((c) => ({ value: c.slug, label: c.name }))
   
-  const { items } = await getCatalogProductsPage(query)
+  const { items, meta } = await getCatalogProductsPage(query)
   
-  return <CatalogPage products={items} categories={categories}/>
+  return (
+    <CatalogPage
+      products={items}
+      categories={categories}
+      pagination={{
+        page: meta.page,
+        totalPages: meta.totalPages,
+        hasPrev: meta.hasPrev,
+        hasNext: meta.hasNext,
+      }}
+    />
+  )
 }

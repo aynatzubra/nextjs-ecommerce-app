@@ -17,6 +17,12 @@ function safeLimit(n: number | undefined): number {
   return Math.min(Math.floor(n), 48) // MAX_LIMIT in normalize
 }
 
+function clampInt(n: number, min: number, max: number): number {
+  if (n < min) return min
+  if (n > max) return max
+  return n
+}
+
 function buildWhere(q: CatalogQuery): Prisma.ProductWhereInput {
   const where: Prisma.ProductWhereInput = { isActive: true }
 
@@ -54,33 +60,33 @@ function buildOrderBy(sort: CatalogSort): NonNullable<Parameters<typeof prisma.p
 export async function getCatalogProductsPage(query?: CatalogQuery): Promise<CatalogResult<ProductListItem>> {
   const base = query ?? DEFAULT_CATALOG_QUERY
 
-  const page = safePage(base.page)
+  const requestedPage = safePage(base.page)
   const limit = safeLimit(base.limit)
 
   const q: CatalogQuery = {
     ...base,
-    page,
+    page: requestedPage,
     limit,
   }
 
   const where = buildWhere(q)
   const orderBy = buildOrderBy(q.sort)
-
-  const skip = (q.page - 1) * q.limit
-  const take = q.limit
-
-  const [total, products] = await prisma.$transaction([
-    prisma.product.count({ where }),
-    prisma.product.findMany({
-      where,
-      include: { category: true },
-      orderBy,
-      skip,
-      take,
-    }),
-  ])
-
+  
+  const total = await prisma.product.count({ where })
   const totalPages = total === 0 ? 1 : Math.ceil(total / q.limit)
+  const page = clampInt(requestedPage, 1, totalPages)
+  
+  const skip = (page - 1) * q.limit
+  const take = q.limit
+  
+  const products = await prisma.product.findMany({
+    where,
+    include: { category: true },
+    orderBy,
+    skip,
+    take,
+  })
+  
   const hasPrev = q.page > 1
   const hasNext = q.page < totalPages
 
