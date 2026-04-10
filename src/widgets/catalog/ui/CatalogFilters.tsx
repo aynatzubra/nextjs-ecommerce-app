@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 type Option = { value: string; label: string }
@@ -21,7 +21,7 @@ export function CatalogFilters({ categories }: { categories: Option[] }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-
+  
   const current = useMemo(() => {
     const get = (key: string) => searchParams.get(key) ?? ''
     return {
@@ -33,35 +33,43 @@ export function CatalogFilters({ categories }: { categories: Option[] }) {
       limit: get('limit') || '12',
     }
   }, [searchParams])
-
+  
   const [min, setMin] = useState(current.min)
   const [max, setMax] = useState(current.max)
-
+  
+  useEffect(() => {
+    setMin(current.min)
+    setMax(current.max)
+  }, [current.min, current.max])
+  
   // always reset page
   const pushParams = (patch: Record<string, string | null>) => {
     const next = new URLSearchParams(searchParams.toString())
-
-    next.set('page', '1')
-
+    
+    next.delete('page')
+    
     for (const [key, value] of Object.entries(patch)) {
       if (value === null || value === '') next.delete(key)
       else next.set(key, value)
     }
-
-    router.push(`${pathname}?${next.toString()}`)
+    
+    const query = next.toString()
+    router.push(query ? `${pathname}?${query}` : pathname)
   }
-
+  
   const applyPrice = () => {
     pushParams({
       min: min.trim() ? min.trim() : null,
       max: max.trim() ? max.trim() : null,
     })
   }
-
+  
   const clearAll = () => {
-    router.push(pathname) // drops all params
+    setMin('')
+    setMax('')
+    router.push(pathname)
   }
-
+  
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
       <div className="grid gap-3 md:grid-cols-6">
@@ -81,7 +89,7 @@ export function CatalogFilters({ categories }: { categories: Option[] }) {
             ))}
           </select>
         </label>
-
+        
         {/* Sort */}
         <label className="flex flex-col gap-1 md:col-span-2">
           <span className="text-xs font-medium text-zinc-700">Sort</span>
@@ -97,7 +105,7 @@ export function CatalogFilters({ categories }: { categories: Option[] }) {
             ))}
           </select>
         </label>
-
+        
         {/* Limit */}
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-zinc-700">Per page</span>
@@ -113,7 +121,7 @@ export function CatalogFilters({ categories }: { categories: Option[] }) {
             ))}
           </select>
         </label>
-
+        
         {/* In stock */}
         <label className="flex items-end gap-2">
           <input
@@ -125,7 +133,7 @@ export function CatalogFilters({ categories }: { categories: Option[] }) {
           <span className="text-sm text-zinc-700">In stock</span>
         </label>
       </div>
-
+      
       {/* Price range */}
       <div className="mt-4 grid gap-3 md:grid-cols-6">
         <label className="flex flex-col gap-1 md:col-span-2">
@@ -138,7 +146,7 @@ export function CatalogFilters({ categories }: { categories: Option[] }) {
             className="h-9 rounded-md border border-zinc-200 bg-white px-3 text-sm"
           />
         </label>
-
+        
         <label className="flex flex-col gap-1 md:col-span-2">
           <span className="text-xs font-medium text-zinc-700">Max price</span>
           <input
@@ -149,7 +157,7 @@ export function CatalogFilters({ categories }: { categories: Option[] }) {
             className="h-9 rounded-md border border-zinc-200 bg-white px-3 text-sm"
           />
         </label>
-
+        
         <div className="flex items-end gap-2 md:col-span-2">
           <button
             type="button"
