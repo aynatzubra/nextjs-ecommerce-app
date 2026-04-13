@@ -1,0 +1,1 @@
+export { buildCatalogHref } from './lib/buildCatalogHref'

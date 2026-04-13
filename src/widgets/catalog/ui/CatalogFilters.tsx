@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { buildCatalogHref } from '@/features/catalog/catalog-query'
 
 type Option = { value: string; label: string }
 
@@ -42,19 +43,15 @@ export function CatalogFilters({ categories }: { categories: Option[] }) {
     setMax(current.max)
   }, [current.min, current.max])
   
-  // always reset page
   const pushParams = (patch: Record<string, string | null>) => {
-    const next = new URLSearchParams(searchParams.toString())
-    
-    next.delete('page')
-    
-    for (const [key, value] of Object.entries(patch)) {
-      if (value === null || value === '') next.delete(key)
-      else next.set(key, value)
-    }
-    
-    const query = next.toString()
-    router.push(query ? `${pathname}?${query}` : pathname)
+    router.push(
+      buildCatalogHref({
+        pathname,
+        searchParams,
+        patch,
+        resetPage: true,
+      })
+    )
   }
   
   const applyPrice = () => {

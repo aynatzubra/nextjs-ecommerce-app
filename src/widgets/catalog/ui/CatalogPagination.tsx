@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { buildCatalogHref } from '@/features/catalog/catalog-query'
 
 interface CatalogPaginationProps {
   page: number
@@ -55,18 +56,18 @@ export function CatalogPagination({
   
   const goToPage = (nextPage: number) => {
     const safePage = clampInt(nextPage, 1, totalPages)
-    const params = new URLSearchParams(searchParams.toString())
     
-    if (safePage <= 1) {
-      params.delete('page')
-    } else {
-      params.set('page', String(safePage))
-    }
-    
-    const query = params.toString()
-    router.push(query ? `${pathname}?${query}` : pathname)
+    router.push(
+      buildCatalogHref({
+        pathname,
+        searchParams,
+        patch: {
+          page: safePage <= 1 ? null : String(safePage)
+        }
+      })
+    )
   }
-  
+
   if (totalPages <= 1) return null
   
   return (
