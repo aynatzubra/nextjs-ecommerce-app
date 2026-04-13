@@ -74,6 +74,7 @@ export async function getCatalogProductsPage(query?: CatalogQuery): Promise<Cata
   
   const total = await prisma.product.count({ where })
   const totalPages = total === 0 ? 1 : Math.ceil(total / q.limit)
+  
   const page = clampInt(requestedPage, 1, totalPages)
   
   const skip = (page - 1) * q.limit
@@ -87,8 +88,8 @@ export async function getCatalogProductsPage(query?: CatalogQuery): Promise<Cata
     take,
   })
   
-  const hasPrev = q.page > 1
-  const hasNext = q.page < totalPages
+  const hasPrev = page > 1
+  const hasNext = page < totalPages
 
   const items: ProductListItem[] = products.map((p) => {
     const firstImage = p.images[0] ?? FALLBACK_LIST_IMAGE
@@ -109,7 +110,7 @@ export async function getCatalogProductsPage(query?: CatalogQuery): Promise<Cata
   return {
     items,
     meta: {
-      page: q.page,
+      page,
       limit: q.limit,
       total,
       totalPages,
