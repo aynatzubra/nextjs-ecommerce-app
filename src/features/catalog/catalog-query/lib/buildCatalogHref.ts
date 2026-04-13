@@ -23,7 +23,6 @@ export function buildCatalogHref({
                                    resetPage = false,
                                  }: BuildCatalogHrefOptions): string {
   const next = new URLSearchParams(searchParams.toString())
-  
   for (const [key, value] of Object.entries(patch)) {
     if (value == null || value === '') {
       next.delete(key)
@@ -31,7 +30,6 @@ export function buildCatalogHref({
       next.set(key, value)
     }
   }
-  
   if (resetPage) {
     next.delete('page')
   } else {
@@ -40,7 +38,6 @@ export function buildCatalogHref({
       next.delete('page')
     }
   }
-  
   const query = next.toString()
   return query ? `${pathname}?${query}` : pathname
 }

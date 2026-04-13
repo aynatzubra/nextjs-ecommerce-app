@@ -25,23 +25,23 @@ function clampInt(n: number, min: number, max: number): number {
 
 function buildWhere(q: CatalogQuery): Prisma.ProductWhereInput {
   const where: Prisma.ProductWhereInput = { isActive: true }
-
+  
   if (q.categorySlug) {
     where.category = { slug: q.categorySlug }
   }
-
+  
   if (q.minPrice !== undefined || q.maxPrice !== undefined) {
     where.price = {}
     if (q.minPrice !== undefined) where.price.gte = q.minPrice
     if (q.maxPrice !== undefined) where.price.lte = q.maxPrice
   }
-
+  
   if (q.inStock === true) {
     where.stock = { gt: 0 }
   } else if (q.inStock === false) {
     where.stock = { lte: 0 }
   }
-
+  
   return where
 }
 
@@ -59,22 +59,21 @@ function buildOrderBy(sort: CatalogSort): NonNullable<Parameters<typeof prisma.p
 
 export async function getCatalogProductsPage(query?: CatalogQuery): Promise<CatalogResult<ProductListItem>> {
   const base = query ?? DEFAULT_CATALOG_QUERY
-
+  
   const requestedPage = safePage(base.page)
   const limit = safeLimit(base.limit)
-
+  
   const q: CatalogQuery = {
     ...base,
     page: requestedPage,
     limit,
   }
-
+  
   const where = buildWhere(q)
   const orderBy = buildOrderBy(q.sort)
   
   const total = await prisma.product.count({ where })
   const totalPages = total === 0 ? 1 : Math.ceil(total / q.limit)
-  
   const page = clampInt(requestedPage, 1, totalPages)
   
   const skip = (page - 1) * q.limit
@@ -90,10 +89,10 @@ export async function getCatalogProductsPage(query?: CatalogQuery): Promise<Cata
   
   const hasPrev = page > 1
   const hasNext = page < totalPages
-
+  
   const items: ProductListItem[] = products.map((p) => {
     const firstImage = p.images[0] ?? FALLBACK_LIST_IMAGE
-
+    
     return {
       id: p.id,
       name: p.name,
@@ -106,7 +105,7 @@ export async function getCatalogProductsPage(query?: CatalogQuery): Promise<Cata
       stock: p.stock,
     }
   })
-
+  
   return {
     items,
     meta: {
@@ -132,9 +131,9 @@ export async function getProductBySlug(slug: string): Promise<ProductDetails | n
       category: true,
     },
   })
-
+  
   if (!product) return null
-
+  
   return {
     id: product.id,
     name: product.name,

@@ -24,7 +24,7 @@ function clampInt(n: number, min: number, max: number): number {
   return n
 }
 
-function parseBoolLike(value: string | undefined): boolean | undefined {
+export function parseBoolLike(value: string | undefined): boolean | undefined {
   if (!value) return undefined
   const v = value.trim().toLowerCase()
 

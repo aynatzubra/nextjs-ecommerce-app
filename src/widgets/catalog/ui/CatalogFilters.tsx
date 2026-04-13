@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { buildCatalogHref } from '@/features/catalog/catalog-query'
+import { parseBoolLike } from '@/entities/product'
 
 type Option = { value: string; label: string }
 
@@ -123,7 +124,7 @@ export function CatalogFilters({ categories }: { categories: Option[] }) {
         <label className="flex items-end gap-2">
           <input
             type="checkbox"
-            checked={current.inStock === '1' || current.inStock === 'true'}
+            checked={parseBoolLike(current.inStock) === true}
             onChange={(e) => pushParams({ inStock: e.target.checked ? '1' : null })}
             className="h-4 w-4 rounded border-zinc-300"
           />

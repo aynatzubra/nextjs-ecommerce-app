@@ -17,8 +17,6 @@ interface CatalogPageProps {
 }
 
 export function CatalogPage({ products, categories, pagination }: CatalogPageProps) {
-  console.log(pagination)
-  
   return (
     <section className="space-y-6">
       <header className="space-y-2">

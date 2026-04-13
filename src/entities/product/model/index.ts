@@ -7,3 +7,4 @@ export type {
 } from './catalog.types'
 
 export { normalizeCatalogSearchParams } from './catalog.normalize'
+export { parseBoolLike } from './catalog.normalize'
