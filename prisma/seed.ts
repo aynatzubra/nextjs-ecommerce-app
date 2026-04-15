@@ -1,11 +1,10 @@
-import { Role, Currency } from '@prisma/client'
+import { Role } from '@prisma/client'
 import { PrismaClient } from '@prisma/client'
 import * as bcrypt from 'bcrypt'
 
 const prisma = new PrismaClient()
 
 const SALT_ROUNDS = 10
-const ADMIN_PASSWORD = 'admin123'
 
 const slugify = (text: string) => {
   return text
@@ -16,37 +15,54 @@ const slugify = (text: string) => {
     .replace(/^-+|-+$/g, '')
 }
 
-async function main() {
-  console.log('Prisma server started')
-
-  const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, SALT_ROUNDS)
-  const adminEmail = 'admin@admin.com'
-
-  await prisma.user.deleteMany({
-    where: {
-      email: adminEmail,
-    },
+async function seedAdminIfNeeded() {
+  const shouldSeedAdmin = process.env.SEED_ADMIN === 'true'
+  
+  if (!shouldSeedAdmin) {
+    return
+  }
+  
+  const adminEmail = process.env.SEED_ADMIN_EMAIL
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD
+  
+  if (!adminEmail || !adminPassword) {
+    throw new Error('SEED_ADMIN=true requires SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD')
+  }
+  
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: adminEmail },
   })
-
-  const adminUser = await prisma.user.create({
+  
+  if (existingAdmin) {
+    console.log(`Admin bootstrap skipped: user "${adminEmail}" already exists.`)
+    return
+  }
+  
+  const hashedPassword = await bcrypt.hash(adminPassword, SALT_ROUNDS)
+  
+  await prisma.user.create({
     data: {
       email: adminEmail,
       name: 'Super Admin',
       role: Role.ADMIN,
       passwordHash: hashedPassword,
+      emailVerified: new Date(),
     },
   })
+  
+  console.log(`Admin user created successfully: ${adminEmail}`)
+}
 
-  console.log(`Admin user created successfully with ${adminUser.email}`)
-  console.log(`Password, hash demo: ${ADMIN_PASSWORD} -> ${hashedPassword}`)
-
+async function main() {
+  await seedAdminIfNeeded()
+  
   const categoriesToCreate = ['Bondage & Restraints', 'Blindfolds & Masks', 'Impact Toys', 'Accessories']
-
+  
   await prisma.product.deleteMany()
   await prisma.category.deleteMany()
-
+  
   const createdCategories = []
-
+  
   for (const name of categoriesToCreate) {
     const category = await prisma.category.create({
       data: {
@@ -57,12 +73,12 @@ async function main() {
     createdCategories.push(category)
   }
   console.log(`Create ${createdCategories.length} categories.`)
-
+  
   const categoryByName = Object.fromEntries(createdCategories.map((c) => [c.name, c]))
-
+  
   const productsData = [
     {
-      name: 'Soft Cotton Cuffs (Red)',
+      name: 'Soft Cotton Cuffs (Blue)',
       categoryName: 'Bondage & Restraints',
       price: '200.00',
       stock: 0,
@@ -72,7 +88,7 @@ async function main() {
       images: ['https://placehold.co/600x600/111111/F5F5F5?text=Cotton+Cuffs+Red'],
     },
     {
-      name: 'Soft Cotton Cuffs (Black)',
+      name: 'Soft Cotton Cuffs (Red)',
       categoryName: 'Bondage & Restraints',
       price: '210.00',
       stock: 18,
@@ -281,14 +297,14 @@ async function main() {
       images: ['https://placehold.co/600x600/111111/F5F5F5?text=Ankle+Cuffs'],
     },
   ]
-
+  
   const prismaProductsData = productsData.map((product) => {
     const category = categoryByName[product.categoryName]
-
+    
     if (!category) {
       throw new Error(`Category "${product.categoryName}" not found for product "${product.name}"`)
     }
-
+    
     return {
       name: product.name,
       slug: slugify(product.name),
@@ -300,7 +316,7 @@ async function main() {
       categoryId: category.id,
     }
   })
-
+  
   await prisma.product.createMany({
     data: prismaProductsData,
   })
