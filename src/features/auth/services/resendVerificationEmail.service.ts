@@ -28,7 +28,4 @@ export async function resendVerificationEmailService(email: string) {
       expires: new Date(Date.now() + 1000 * 60 * 60),
     },
   })
-
-  // local -simple type link
-  console.log('RESEND VERIFY LINK:', `http://localhost:3000/verify-email/${token}`)
 }

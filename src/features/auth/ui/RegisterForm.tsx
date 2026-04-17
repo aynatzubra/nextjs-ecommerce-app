@@ -11,41 +11,38 @@ export function RegisterForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [showPass, setShowPass] = useState(false)
-
+  
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (loading) return
-
+    
     setError(null)
     setLoading(true)
-
+    
     const formData = new FormData(e.currentTarget)
     const rawData = Object.fromEntries(formData.entries())
-
+    
     if (rawData.name === '') {
       delete rawData.name
     }
-
+    
     const validationResult = registerSchema.safeParse(rawData)
-
+    
     if (!validationResult.success) {
       setError(validationResult.error.issues[0].message)
       setLoading(false)
       return
     }
-
+    
     try {
       const res = await registerUser(validationResult.data)
-
+      
       if (!res.success) {
         throw new Error(res.error)
       }
-
-      router.push(
-        `/verify-email?email=${encodeURIComponent(validationResult.data.email)}${
-          res.devVerifyLink ? `&devVerifyLink=${encodeURIComponent(res.devVerifyLink)}` : ''
-        }`,
-      )
+      
+      router.push(`/verify-email?email=${encodeURIComponent(validationResult.data.email)}`)
+      
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unable to create account'
       setError(message)
@@ -53,7 +50,7 @@ export function RegisterForm() {
       setLoading(false)
     }
   }
-
+  
   return (
     <div className="bg-white p-8 rounded-lg border border-gray-200 shadow-sm">
       <form onSubmit={onSubmit} className="space-y-5">
@@ -66,7 +63,7 @@ export function RegisterForm() {
             className="w-full px-5 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
           />
         </div>
-
+        
         {/* Input Email */}
         <div className="space-y-1">
           <label className="block text-sm font-medium text-gray-700 ml-1">
@@ -80,7 +77,7 @@ export function RegisterForm() {
             className="w-full px-5 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
           />
         </div>
-
+        
         {/* Input Password */}
         <div className="space-y-1">
           <label className="block text-sm font-medium text-gray-700 ml-1">
@@ -102,7 +99,7 @@ export function RegisterForm() {
             </button>
           </div>
         </div>
-
+        
         {/* Input Confirm Password */}
         <div className="space-y-1">
           <label className="block text-sm font-medium text-gray-700 ml-1">
@@ -115,9 +112,9 @@ export function RegisterForm() {
             className="w-full px-5 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
           />
         </div>
-
+        
         {error && <p className="text-red-500 text-sm">{error}</p>}
-
+        
         {/*registration button */}
         <div className="flex justify-center pt-2">
           <button
@@ -128,20 +125,21 @@ export function RegisterForm() {
             {loading ? 'Creating...' : 'Create account'}
           </button>
         </div>
-
+        
         {/* separator */}
         <div className="relative flex py-3 items-center">
           <div className="flex-grow border-t border-gray-200"></div>
           <span className="flex-shrink mx-4 text-gray-400 text-xs uppercase tracking-widest">or</span>
           <div className="flex-grow border-t border-gray-200"></div>
         </div>
-
+        
         {/* Button Google */}
         <div className="flex justify-center">
           <button
             type="button"
             disabled
-            onClick={() => {}}
+            onClick={() => {
+            }}
             className="flex items-center justify-center gap-3 px-8 py-3 border border-gray-200 rounded-full text-sm font-semibold text-gray-400 w-full cursor-not-allowed bg-gray-50 opacity-70"
           >
             {/* SVG icon Google */}

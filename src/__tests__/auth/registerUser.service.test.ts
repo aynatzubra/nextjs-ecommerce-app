@@ -27,8 +27,8 @@ describe('registerUserService', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
-
-  it('creates user + verification token inside a transaction and returns token', async () => {
+  
+  it('creates user and verification token inside a transaction and returns user', async () => {
     ;(bcrypt.hash as any).mockResolvedValue('hash123')
 
     mockPrisma.user.create.mockResolvedValue({
@@ -71,8 +71,15 @@ describe('registerUserService', () => {
         }),
       }),
     )
-
-    expect(res).toEqual(expect.objectContaining({ token: 'uuid-test-123' }))
+    
+    expect(res).toEqual(
+      expect.objectContaining({
+        user: expect.objectContaining({
+          id: 'user-id-1',
+          email: 'user@mail.com',
+        }),
+      }),
+    )
   })
 
   it('throws USER_ALREADY_EXISTS on Prisma P2002', async () => {

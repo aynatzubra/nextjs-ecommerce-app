@@ -20,7 +20,7 @@ export async function registerUserService({
   const passwordHash = await bcrypt.hash(password, 10)
 
   try {
-    const { user, token } = await prisma.$transaction(async (tx) => {
+    const user = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
           email: normalizedEmail,
@@ -41,12 +41,10 @@ export async function registerUserService({
         },
       })
 
-      return { user, token }
+      return user
     })
-
-    console.log('VERIFY LINK:', `http://localhost:3000/verify-email/${token}`)
-
-    return { user, token }
+    
+    return { user }
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       throw new Error(REGISTER_ERRORS.USER_ALREADY_EXISTS)

@@ -8,15 +8,11 @@ export async function registerUser(data: RegisterInput) {
   if (!parsed.success) {
     return { success: false, error: 'Invalid input data' }
   }
-
+  
   try {
-    const { token, user } = await registerUserService(parsed.data)
-
-    const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-
-    const devVerifyLink = process.env.NODE_ENV !== 'production' ? `${baseUrl}/verify-email/${token}` : undefined
-
-    return { success: true as const, userId: user.id, devVerifyLink }
+    const { user } = await registerUserService(parsed.data)
+    
+    return { success: true as const, userId: user.id }
   } catch (e) {
     if (e instanceof Error && e.message === 'USER_ALREADY_EXISTS') {
       return { success: false as const, error: 'Unable to create account' }
