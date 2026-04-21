@@ -16,6 +16,7 @@ export const mockPrisma = {
   verificationToken: {
     findUnique: vi.fn(),
     delete: vi.fn(),
+    deleteMany: vi.fn(),
     create: vi.fn(),
   },
   $transaction: vi.fn(),

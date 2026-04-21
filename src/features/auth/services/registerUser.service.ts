@@ -2,6 +2,7 @@ import { prisma } from '@/shared/lib/prisma'
 import { Prisma } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import { randomUUID } from 'node:crypto'
+import { sendVerificationEmail } from '@/shared/lib/email/sendEmail'
 
 export const REGISTER_ERRORS = {
   USER_ALREADY_EXISTS: 'USER_ALREADY_EXISTS',
@@ -20,7 +21,7 @@ export async function registerUserService({
   const passwordHash = await bcrypt.hash(password, 10)
 
   try {
-    const user = await prisma.$transaction(async (tx) => {
+    const { user, token } = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
           email: normalizedEmail,
@@ -31,8 +32,8 @@ export async function registerUserService({
         },
         select: { id: true, email: true },
       })
-
       const token = randomUUID()
+      
       await tx.verificationToken.create({
         data: {
           identifier: normalizedEmail,
@@ -41,8 +42,28 @@ export async function registerUserService({
         },
       })
 
-      return user
+      return { user , token }
     })
+    
+    const appUrl = process.env.APP_URL
+    if(!appUrl) throw new Error('Missing APP_URL')
+    
+    const verifyUrl = `${appUrl}/verify-email/${token}`
+    
+    try {
+      await sendVerificationEmail({
+        to: normalizedEmail,
+        verifyUrl,
+      })
+    } catch (e) {
+      console.error('EMAIL ERROR:', e)
+      throw e
+    }
+    
+    // await sendVerificationEmail({
+    //   to: normalizedEmail,
+    //   verifyUrl,
+    // })
     
     return { user }
   } catch (error) {

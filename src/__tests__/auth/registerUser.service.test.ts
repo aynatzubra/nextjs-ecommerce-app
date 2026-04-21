@@ -20,6 +20,11 @@ vi.mock('crypto', async () => {
   }
 })
 
+const sendVerificationEmailMock = vi.hoisted(() => vi.fn())
+vi.mock('@/shared/lib/email/sendEmail', () => ({
+  sendVerificationEmail: sendVerificationEmailMock,
+}))
+
 const bcrypt = (await import('bcryptjs')).default
 const { registerUserService } = await import('@/features/auth/services/registerUser.service')
 
@@ -71,6 +76,11 @@ describe('registerUserService', () => {
         }),
       }),
     )
+    
+    expect(sendVerificationEmailMock).toHaveBeenCalledWith({
+      to: 'user@mail.com',
+      verifyUrl: 'http://localhost:3000/verify-email/uuid-test-123',
+    })
     
     expect(res).toEqual(
       expect.objectContaining({
