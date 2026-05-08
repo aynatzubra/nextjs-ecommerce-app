@@ -1,7 +1,8 @@
 import { AccountPage } from '@/widgets/account'
+import { requireUser } from '@/features/auth/lib/guards'
 
-export default function AccountPageRoute() {
-  // middleware + auth()
-  // user profile and order history
+export default async function AccountPageRoute() {
+  await requireUser()
+  
   return <AccountPage />
 }

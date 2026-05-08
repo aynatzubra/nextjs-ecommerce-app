@@ -4,6 +4,7 @@ import { auth } from '@/features/auth/lib/auth'
 import * as z from 'zod'
 import { revalidatePath } from 'next/cache'
 import { createOrderService, ProductOutOfStockError } from '@/features/order/services/createOrderService'
+import { requireUser } from '@/features/auth/lib/guards'
 
 const CreateOrderSchema = z.strictObject({
   productId: z.coerce.number().int().positive({ message: 'Invalid product ID.' }),
@@ -30,14 +31,11 @@ export async function createOrderAction(formData: FormData): Promise<ActionState
 
   const { productId, quantity } = validation.data
 
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, message: 'Auth error. Please sing in to create order.' }
-  }
+  const user = await requireUser()
 
   try {
     await createOrderService({
-      userId: session.user.id,
+      userId: user.id,
       productId,
       quantity,
     })
