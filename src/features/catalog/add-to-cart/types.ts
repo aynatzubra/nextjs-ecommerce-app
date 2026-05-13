@@ -8,4 +8,5 @@ export interface AddToCartButtonProps {
   quantity?: number
   className?: string
   imageUrl?: string
+  stock: number
 }

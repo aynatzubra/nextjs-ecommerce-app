@@ -12,27 +12,39 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       items: [],
       isOpen: false,
-
+      
       addItem: (item: Omit<CartItem, 'quantity'>, quantity = 1) => {
         set((state) => {
-          const existing = state.items.find((i) => i.productId === item.productId)
-
+          const existing = state.items.find(
+            (i) => i.productId === item.productId,
+          )
+          
           if (existing) {
+            const nextQuantity = Math.min(
+              existing.quantity + quantity,
+              item.lastKnownStock,
+            )
             return {
               ...state,
               items: state.items.map((i) =>
-                i.productId === item.productId ? { ...i, quantity: i.quantity + quantity } : i,
+                i.productId === item.productId
+                  ? {
+                    ...i,
+                    quantity: nextQuantity,
+                    lastKnownStock: item.lastKnownStock,
+                  }
+                  : i,
               ),
             }
           }
-
+          
           return {
             ...state,
             items: [
               ...state.items,
               {
                 ...item,
-                quantity,
+                quantity: Math.min(quantity, item.lastKnownStock),
               },
             ],
           }
@@ -44,18 +56,27 @@ export const useCartStore = create<CartStore>()(
           items: state.items.filter((i) => i.productId !== productId),
         }))
       },
-      updateQuantity: (productId: CartItemId, quantity: number) => {
+      updateQuantity: (productId: CartItemId, quantity: number, availableStock) => {
         set((state) => {
-          if (quantity <= 0) {
+          const safeQuantity = Math.min(quantity, availableStock)
+          
+          if (safeQuantity <= 0) {
             return {
               ...state,
               items: state.items.filter((i) => i.productId !== productId),
             }
           }
-
+          
           return {
             ...state,
-            items: state.items.map((i) => (i.productId === productId ? { ...i, quantity } : i)),
+            items: state.items.map((i) => (i.productId === productId
+                ? {
+                  ...i,
+                  quantity: safeQuantity,
+                  lastKnownStock: availableStock,
+                }
+                : i
+            )),
           }
         })
       },
@@ -91,7 +112,7 @@ export const useCartStore = create<CartStore>()(
 //hook-wrap over the zustand-store
 export function useCart(): UseCartResult {
   const [isHydrated, setIsHydrated] = useState(false)
-
+  
   // selectors from store
   const items = useCartStore((state) => state.items)
   const isOpen = useCartStore((state) => state.isOpen)
@@ -102,18 +123,18 @@ export function useCart(): UseCartResult {
   const toggleCart = useCartStore((state) => state.toggleCart)
   const getTotalQuantity = useCartStore((state) => state.getTotalQuantity)
   const getTotalPrice = useCartStore((state) => state.getTotalPrice)
-
+  
   useEffect(() => {
     setIsHydrated(true)
   }, [])
-
+  
   const checkoutItems: CartCheckoutItem[] = isHydrated
     ? items.map((item) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-      }))
+      productId: item.productId,
+      quantity: item.quantity,
+    }))
     : []
-
+  
   if (!isHydrated) {
     return {
       items: [],
@@ -129,7 +150,7 @@ export function useCart(): UseCartResult {
       isHydrated: false,
     }
   }
-
+  
   return {
     items,
     isOpen,

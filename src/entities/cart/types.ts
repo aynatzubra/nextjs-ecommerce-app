@@ -8,6 +8,7 @@ export interface CartItem {
   quantity: number
   currency: CartCurrency
   imageUrl?: string
+  lastKnownStock: number
 }
 
 export interface CartState {
@@ -18,7 +19,11 @@ export interface CartState {
 export interface CartActions {
   addItem: (item: Omit<CartItem, 'quantity'>, quantity?: number) => void
   removeItem: (productId: CartItemId) => void
-  updateQuantity: (productId: CartItemId, quantity: number) => void
+  updateQuantity: (
+    productId: CartItemId,
+    quantity: number,
+    availableStock: number,
+  ) => void
   clearCart: () => void
   toggleCart: () => void
 }
@@ -44,7 +49,7 @@ export interface UseCartResult {
 
   addItem: (item: Omit<CartItem, 'quantity'>, quantity?: number) => void
   removeItem: (productId: CartItemId) => void
-  updateQuantity: (productId: CartItemId, quantity: number) => void
+  updateQuantity: (productId: CartItemId, quantity: number, availableStock: number) => void
   clearCart: () => void
   toggleCart: () => void
 

@@ -11,6 +11,7 @@ export function AddToCartButton({
   imageUrl,
   quantity = 1,
   className,
+  stock
 }: AddToCartButtonProps) {
   const { addItem } = useCart()
 
@@ -25,6 +26,7 @@ export function AddToCartButton({
         price,
         currency,
         imageUrl,
+        lastKnownStock: stock,
       },
       quantity,
     )
