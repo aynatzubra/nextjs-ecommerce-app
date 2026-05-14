@@ -3,19 +3,8 @@ import { ProductDetails, ProductListItem } from '@/entities/product/types'
 import { CatalogQuery, CatalogResult, CatalogSort } from './model'
 import type { Prisma } from '@prisma/client'
 
-const DEFAULT_CATALOG_QUERY: CatalogQuery = { sort: 'newest', page: 1, limit: 12 }
 const FALLBACK_LIST_IMAGE = 'https://placehold.co/600x600/111111/F5F5F5?text=No+Image'
 const FALLBACK_DETAILS_IMAGE = 'https://placehold.co/800x800/111111/F5F5F5?text=No+Image'
-
-function safePage(n: number | undefined): number {
-  if (!n || !Number.isFinite(n) || n < 1) return 1
-  return Math.min(Math.floor(n), 100_000)
-}
-
-function safeLimit(n: number | undefined): number {
-  if (!n || !Number.isFinite(n) || n < 1) return DEFAULT_CATALOG_QUERY.limit
-  return Math.min(Math.floor(n), 48) // MAX_LIMIT in normalize
-}
 
 function clampInt(n: number, min: number, max: number): number {
   if (n < min) return min
@@ -57,27 +46,20 @@ function buildOrderBy(sort: CatalogSort): NonNullable<Parameters<typeof prisma.p
   }
 }
 
-export async function getCatalogProductsPage(query?: CatalogQuery): Promise<CatalogResult<ProductListItem>> {
-  const base = query ?? DEFAULT_CATALOG_QUERY
+export async function getCatalogProductsPage(
+  query: CatalogQuery,
+): Promise<CatalogResult<ProductListItem>> {
   
-  const requestedPage = safePage(base.page)
-  const limit = safeLimit(base.limit)
-  
-  const q: CatalogQuery = {
-    ...base,
-    page: requestedPage,
-    limit,
-  }
-  
-  const where = buildWhere(q)
-  const orderBy = buildOrderBy(q.sort)
+  const where = buildWhere(query)
+  const orderBy = buildOrderBy(query.sort)
   
   const total = await prisma.product.count({ where })
-  const totalPages = total === 0 ? 1 : Math.ceil(total / q.limit)
-  const page = clampInt(requestedPage, 1, totalPages)
   
-  const skip = (page - 1) * q.limit
-  const take = q.limit
+  const totalPages = total === 0 ? 1 : Math.ceil(total / query.limit)
+  const page = clampInt(query.page, 1, totalPages) //runtime pagination reconciliation
+  
+  const skip = (page - 1) * query.limit
+  const take = query.limit
   
   const products = await prisma.product.findMany({
     where,
@@ -110,7 +92,7 @@ export async function getCatalogProductsPage(query?: CatalogQuery): Promise<Cata
     items,
     meta: {
       page,
-      limit: q.limit,
+      limit: query.limit,
       total,
       totalPages,
       hasNext,
@@ -119,7 +101,9 @@ export async function getCatalogProductsPage(query?: CatalogQuery): Promise<Cata
   }
 }
 
-export async function getCatalogProducts(query?: CatalogQuery): Promise<ProductListItem[]> {
+export async function getCatalogProducts(
+  query: CatalogQuery,
+): Promise<ProductListItem[]> {
   const result = await getCatalogProductsPage(query)
   return result.items
 }

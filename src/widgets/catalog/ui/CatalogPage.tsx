@@ -1,6 +1,6 @@
 import { CatalogFilters } from '@/widgets/catalog/ui/CatalogFilters'
 import { ProductGrid } from '@/widgets/catalog/ui/ProductGrid'
-import type { ProductListItem } from '@/entities/product'
+import type { CatalogQuery, ProductListItem } from '@/entities/product'
 import { CatalogPagination } from '@/widgets/catalog'
 
 interface CatalogPaginationMeta {
@@ -14,14 +14,18 @@ interface CatalogPageProps {
   products: ProductListItem[]
   categories: { value: string; label: string }[]
   pagination: CatalogPaginationMeta
+  query: CatalogQuery
 }
 
-export function CatalogPage({ products, categories, pagination }: CatalogPageProps) {
+export function CatalogPage({ products, categories, pagination, query }: CatalogPageProps) {
   return (
     <section className="space-y-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight">Catalog</h1>
-        <CatalogFilters categories={categories} />
+        <CatalogFilters
+          categories={categories}
+          query={query}
+        />
       </header>
 
       <ProductGrid products={products} />

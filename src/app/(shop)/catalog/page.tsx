@@ -24,6 +24,7 @@ export default async function CatalogPageRoute({ searchParams }: Props) {
     <CatalogPage
       products={items}
       categories={categories}
+      query={query}
       pagination={{
         page: meta.page,
         totalPages: meta.totalPages,

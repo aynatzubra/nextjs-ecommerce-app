@@ -1,48 +1,31 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { buildCatalogHref } from '@/features/catalog/catalog-query'
-import { parseBoolLike } from '@/entities/product'
+import { CatalogQuery } from '@/entities/product'
+import { LIMIT_OPTIONS, Option, SORT_OPTIONS } from '@/entities/product/model/catalog.types'
 
-type Option = { value: string; label: string }
+interface CatalogFiltersProps {
+  categories: Option[]
+  query: CatalogQuery
+}
 
-const SORT_OPTIONS: Option[] = [
-  { value: 'newest', label: 'Newest' },
-  { value: 'price_asc', label: 'Price: low → high' },
-  { value: 'price_desc', label: 'Price: high → low' },
-]
-
-const LIMIT_OPTIONS: Option[] = [
-  { value: '12', label: '12' },
-  { value: '24', label: '24' },
-  { value: '48', label: '48' },
-]
-
-export function CatalogFilters({ categories }: { categories: Option[] }) {
+export function CatalogFilters({
+                                 categories,
+                                 query,
+                               }: CatalogFiltersProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   
-  const current = useMemo(() => {
-    const get = (key: string) => searchParams.get(key) ?? ''
-    return {
-      category: get('category'),
-      min: get('min'),
-      max: get('max'),
-      inStock: get('inStock'), // "1"
-      sort: get('sort') || 'newest',
-      limit: get('limit') || '12',
-    }
-  }, [searchParams])
-  
-  const [min, setMin] = useState(current.min)
-  const [max, setMax] = useState(current.max)
+  const [min, setMin] = useState(query.minPrice?.toString() ?? '')
+  const [max, setMax] = useState(query.maxPrice?.toString() ?? '')
   
   useEffect(() => {
-    setMin(current.min)
-    setMax(current.max)
-  }, [current.min, current.max])
+    setMin(query.minPrice?.toString() ?? '')
+    setMax(query.maxPrice?.toString() ?? '')
+  }, [query.minPrice, query.maxPrice])
   
   const pushParams = (patch: Record<string, string | null>) => {
     router.push(
@@ -51,13 +34,13 @@ export function CatalogFilters({ categories }: { categories: Option[] }) {
         searchParams,
         patch,
         resetPage: true,
-      })
+      }),
     )
   }
   
   const applyPrice = () => {
     pushParams({
-      min: min.trim() ? min.trim() : null,
+      min: min?.trim() ? min.trim() : null,
       max: max.trim() ? max.trim() : null,
     })
   }
@@ -75,7 +58,7 @@ export function CatalogFilters({ categories }: { categories: Option[] }) {
         <label className="flex flex-col gap-1 md:col-span-2">
           <span className="text-xs font-medium text-zinc-700">Category</span>
           <select
-            value={current.category}
+            value={query.categorySlug ?? ''}
             onChange={(e) => pushParams({ category: e.target.value || null })}
             className="h-9 rounded-md border border-zinc-200 bg-white px-3 text-sm"
           >
@@ -92,7 +75,7 @@ export function CatalogFilters({ categories }: { categories: Option[] }) {
         <label className="flex flex-col gap-1 md:col-span-2">
           <span className="text-xs font-medium text-zinc-700">Sort</span>
           <select
-            value={current.sort}
+            value={query.sort}
             onChange={(e) => pushParams({ sort: e.target.value || null })}
             className="h-9 rounded-md border border-zinc-200 bg-white px-3 text-sm"
           >
@@ -108,7 +91,7 @@ export function CatalogFilters({ categories }: { categories: Option[] }) {
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-zinc-700">Per page</span>
           <select
-            value={current.limit}
+            value={String(query.limit)}
             onChange={(e) => pushParams({ limit: e.target.value || null })}
             className="h-9 rounded-md border border-zinc-200 bg-white px-3 text-sm"
           >
@@ -124,7 +107,7 @@ export function CatalogFilters({ categories }: { categories: Option[] }) {
         <label className="flex items-end gap-2">
           <input
             type="checkbox"
-            checked={parseBoolLike(current.inStock) === true}
+            checked={query.inStock === true}
             onChange={(e) => pushParams({ inStock: e.target.checked ? '1' : null })}
             className="h-4 w-4 rounded border-zinc-300"
           />
