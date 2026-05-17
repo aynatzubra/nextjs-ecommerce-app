@@ -11,14 +11,19 @@ import { redirect } from 'next/navigation'
  * requireUser() or requireAdmin().
  */
 
-export async function requireUser() {
+export async function getAuthenticatedUser() {
   const session = await auth()
+  return session?.user ?? null
+}
+
+export async function requireUser() {
+  const user = await getAuthenticatedUser()
   
-  if (!session?.user) {
+  if (!user) {
     redirect('/login')
   }
   
-  return session.user
+  return user
 }
 
 export async function requireAdmin() {
