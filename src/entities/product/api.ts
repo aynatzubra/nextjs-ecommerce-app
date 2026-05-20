@@ -1,7 +1,7 @@
 import { prisma } from '@/shared/lib/prisma'
 import { ProductDetails, ProductListItem } from '@/entities/product/types'
-import { CatalogQuery, CatalogResult, CatalogSort } from './model'
-import type { Prisma } from '@prisma/client'
+import { CatalogQuery, CatalogResult } from './model'
+import { buildOrderBy, buildWhere } from '@/entities/product/lib'
 
 const FALLBACK_LIST_IMAGE = 'https://placehold.co/600x600/111111/F5F5F5?text=No+Image'
 const FALLBACK_DETAILS_IMAGE = 'https://placehold.co/800x800/111111/F5F5F5?text=No+Image'
@@ -10,40 +10,6 @@ function clampInt(n: number, min: number, max: number): number {
   if (n < min) return min
   if (n > max) return max
   return n
-}
-
-function buildWhere(q: CatalogQuery): Prisma.ProductWhereInput {
-  const where: Prisma.ProductWhereInput = { isActive: true }
-  
-  if (q.categorySlug) {
-    where.category = { slug: q.categorySlug }
-  }
-  
-  if (q.minPrice !== undefined || q.maxPrice !== undefined) {
-    where.price = {}
-    if (q.minPrice !== undefined) where.price.gte = q.minPrice
-    if (q.maxPrice !== undefined) where.price.lte = q.maxPrice
-  }
-  
-  if (q.inStock === true) {
-    where.stock = { gt: 0 }
-  } else if (q.inStock === false) {
-    where.stock = { lte: 0 }
-  }
-  
-  return where
-}
-
-function buildOrderBy(sort: CatalogSort): NonNullable<Parameters<typeof prisma.product.findMany>[0]>['orderBy'] {
-  switch (sort) {
-    case 'price_asc':
-      return [{ price: 'asc' }, { id: 'desc' }]
-    case 'price_desc':
-      return [{ price: 'desc' }, { id: 'desc' }]
-    case 'newest':
-    default:
-      return [{ createdAt: 'desc' }, { id: 'desc' }]
-  }
 }
 
 export async function getCatalogProductsPage(
