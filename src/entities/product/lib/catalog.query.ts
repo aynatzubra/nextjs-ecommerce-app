@@ -17,6 +17,7 @@ export function buildWhere(q: CatalogQuery): Prisma.ProductWhereInput {
   if (q.inStock === true) {
     where.stock = { gt: 0 }
   } else if (q.inStock === false) {
+    // Use 'lte' instead of 'equals' to handle negative stock caused by race conditions
     where.stock = { lte: 0 }
   }
   
