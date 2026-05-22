@@ -167,3 +167,67 @@ describe('сomposability contract', () => {
     })
   })
 })
+
+describe('buildOrderBy contract', () => {
+  describe('primary sort contract', () => {
+    it('builds newest ordering', () => {
+      expect(buildOrderBy('newest')).toEqual([
+        { createdAt: 'desc' },
+        { id: 'desc' },
+      ])
+    })
+    
+    it('builds price ascending ordering', () => {
+      expect(buildOrderBy('price_asc')).toEqual([
+        { price: 'asc' },
+        { id: 'desc' },
+      ])
+    })
+    
+    it('builds price descending ordering', () => {
+      expect(buildOrderBy('price_desc')).toEqual([
+        { price: 'desc' },
+        { id: 'desc' },
+      ])
+    })
+  })
+  
+  describe('stable sorting contract', () => {
+    const SORTS_EXHAUSTIVE: Record<CatalogSort, null> = {
+      newest: null,
+      price_asc: null,
+      price_desc: null,
+    }
+    
+    it.each(Object.keys(SORTS_EXHAUSTIVE) as CatalogSort[])(
+      'always appends stable secondary id sort for %s',
+      (sort) => {
+        const orderBy = buildOrderBy(sort)
+        
+        expect(orderBy).toHaveLength(2)
+        
+        expect(orderBy[1]).toEqual({
+          id: 'desc',
+        })
+      },
+    )
+  })
+  
+  describe('fallback contract', () => {
+    it('falls back to newest ordering for unknown values', () => {
+      expect(buildOrderBy('invalid' as CatalogSort)).toEqual([
+        { createdAt: 'desc' },
+        { id: 'desc' },
+      ])
+    })
+  })
+  
+  describe('determinism contract', () => {
+    it('returns structurally identical output for same input', () => {
+      const first = buildOrderBy('price_asc')
+      const second = buildOrderBy('price_asc')
+      
+      expect(first).toEqual(second)
+    })
+  })
+})
