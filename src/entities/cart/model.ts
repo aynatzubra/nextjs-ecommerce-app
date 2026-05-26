@@ -4,6 +4,13 @@ import { create } from 'zustand'
 import { CartCheckoutItem, CartItem, CartItemId, CartStore, UseCartResult } from '@/entities/cart/types'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { useEffect, useState } from 'react'
+import {
+  addCartItem,
+  removeCartItem,
+  updateCartItem,
+  getTotalQuantity,
+  getTotalPrice,
+} from './lib/cart.contracts'
 
 const STORAGE_KEY = 'ecommerce-cart'
 
@@ -14,71 +21,22 @@ export const useCartStore = create<CartStore>()(
       isOpen: false,
       
       addItem: (item: Omit<CartItem, 'quantity'>, quantity = 1) => {
-        set((state) => {
-          const existing = state.items.find(
-            (i) => i.productId === item.productId,
-          )
-          
-          if (existing) {
-            const nextQuantity = Math.min(
-              existing.quantity + quantity,
-              item.lastKnownStock,
-            )
-            return {
-              ...state,
-              items: state.items.map((i) =>
-                i.productId === item.productId
-                  ? {
-                    ...i,
-                    quantity: nextQuantity,
-                    lastKnownStock: item.lastKnownStock,
-                  }
-                  : i,
-              ),
-            }
-          }
-          
-          return {
-            ...state,
-            items: [
-              ...state.items,
-              {
-                ...item,
-                quantity: Math.min(quantity, item.lastKnownStock),
-              },
-            ],
-          }
-        })
+        set((state) => ({
+          ...state,
+          items: addCartItem(state.items, item, quantity),
+        }))
       },
       removeItem: (productId: CartItemId) => {
         set((state) => ({
           ...state,
-          items: state.items.filter((i) => i.productId !== productId),
+          items: removeCartItem(state.items, productId),
         }))
       },
       updateQuantity: (productId: CartItemId, quantity: number, availableStock) => {
-        set((state) => {
-          const safeQuantity = Math.min(quantity, availableStock)
-          
-          if (safeQuantity <= 0) {
-            return {
-              ...state,
-              items: state.items.filter((i) => i.productId !== productId),
-            }
-          }
-          
-          return {
-            ...state,
-            items: state.items.map((i) => (i.productId === productId
-                ? {
-                  ...i,
-                  quantity: safeQuantity,
-                  lastKnownStock: availableStock,
-                }
-                : i
-            )),
-          }
-        })
+        set((state) => ({
+          ...state,
+          items: updateCartItem(state.items, productId, quantity, availableStock),
+        }))
       },
       clearCart: () => {
         set((state) => ({
@@ -93,10 +51,10 @@ export const useCartStore = create<CartStore>()(
         }))
       },
       getTotalQuantity: () => {
-        return get().items.reduce((sum, item) => sum + item.quantity, 0)
+        return getTotalQuantity(get().items)
       },
       getTotalPrice: () => {
-        return get().items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+        return getTotalPrice(get().items)
       },
     }),
     {
