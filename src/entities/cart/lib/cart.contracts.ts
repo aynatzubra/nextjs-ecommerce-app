@@ -97,5 +97,7 @@ export function getTotalQuantity(items: CartItem[]): number {
 }
 
 export function getTotalPrice(items: CartItem[]): number {
-  return items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const rawTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  
+  return Math.round((rawTotal + Number.EPSILON) * 100) / 100
 }
