@@ -92,6 +92,7 @@ export async function getProductBySlug(slug: string): Promise<ProductDetails | n
     price: Number(product.price),
     images: product.images.length > 0 ? product.images : [FALLBACK_DETAILS_IMAGE],
     categoryName: product.category?.name ?? 'Uncategorized',
+    stock: product.stock,
     inStock: product.stock > 0,
   }
 }

@@ -18,5 +18,6 @@ export interface ProductDetails {
   price: number
   images: string[]
   categoryName: string
+  stock: number
   inStock: boolean
 }
