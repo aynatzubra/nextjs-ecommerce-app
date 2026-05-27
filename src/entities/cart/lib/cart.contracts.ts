@@ -48,15 +48,29 @@ export function updateCartItem(
   quantity: number,
   availableStock: number,
 ): CartItem[] {
+  const existing = items.find((i) => i.productId === productId)
+  
+  if (!existing) {
+    return items
+  }
+  
   if (quantity <= 0) {
     return items.filter((i) => i.productId !== productId)
   }
 
   const safeQuantity = normalizeQuantity(quantity, availableStock)
+  
   if (safeQuantity <= 0) {
     return items.filter((i) => i.productId !== productId)
   }
-
+  
+  if (
+    existing.quantity === safeQuantity &&
+    existing.lastKnownStock === availableStock
+  ) {
+    return items
+  }
+  
   return items.map((i) =>
     i.productId === productId
       ? {
