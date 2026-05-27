@@ -86,6 +86,9 @@ export function removeCartItem(
   items: CartItem[],
   productId: CartItemId,
 ): CartItem[] {
+  const hasItem = items.some((i) => i.productId === productId)
+  if (!hasItem) return items //render bailout
+  
   return items.filter((i) => i.productId !== productId)
 }
 
