@@ -16,6 +16,11 @@ const slugify = (text: string) => {
 }
 
 async function seedAdminIfNeeded() {
+  if (process.env.NODE_ENV === 'production') {
+    console.log('Admin bootstrap is disabled in production.')
+    return
+  }
+  
   const shouldSeedAdmin = process.env.SEED_ADMIN === 'true'
   
   if (!shouldSeedAdmin) {
@@ -54,6 +59,11 @@ async function seedAdminIfNeeded() {
 }
 
 async function main() {
+  if (process.env.NODE_ENV === 'production') {
+    console.log('Seed script is disabled in production to prevent data loss.')
+    return
+  }
+  
   await seedAdminIfNeeded()
   
   const categoriesToCreate = ['Bondage & Restraints', 'Blindfolds & Masks', 'Impact Toys', 'Accessories']
