@@ -56,7 +56,8 @@ export async function registerUserService({
         verifyUrl,
       })
     } catch (e) {
-      console.error('EMAIL ERROR:', e)
+      const errorMessage = e instanceof Error ? e.message : 'Unknown error occurred'
+      console.error('EMAIL ERROR:', errorMessage)
       throw e
     }
     

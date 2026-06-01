@@ -52,7 +52,8 @@ export async function createOrderAction(formData: FormData): Promise<ActionState
     if (error instanceof ProductOutOfStockError) {
       return { success: false, message: 'The product was not found or is out of stock.' }
     }
-    console.error('Create order failed', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error('Create order failed', errorMessage)
     return { success: false, message: 'Failed to create order due to internal server error.' }
   }
 }
