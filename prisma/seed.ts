@@ -1,10 +1,15 @@
 import { Role } from '@prisma/client'
 import { PrismaClient } from '@prisma/client'
 import * as bcrypt from 'bcrypt'
+import { randomBytes } from 'node:crypto'
 
 const prisma = new PrismaClient()
 
 const SALT_ROUNDS = 10
+
+// Technical bootstrap account — used only when no admin exists in the database.
+// Change this value before first deployment if a different bootstrap email is required.
+const ADMIN_EMAIL = 'admin@localhost'
 
 const slugify = (text: string) => {
   return text
@@ -16,63 +21,65 @@ const slugify = (text: string) => {
 }
 
 async function seedAdminIfNeeded() {
-  if (process.env.NODE_ENV === 'production') {
-    console.log('Admin bootstrap is disabled in production.')
-    return
-  }
-  
-  const shouldSeedAdmin = process.env.SEED_ADMIN === 'true'
-  
-  if (!shouldSeedAdmin) {
-    return
-  }
-  
-  const adminEmail = process.env.SEED_ADMIN_EMAIL
-  const adminPassword = process.env.SEED_ADMIN_PASSWORD
-  
-  if (!adminEmail || !adminPassword) {
-    throw new Error('SEED_ADMIN=true requires SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD')
-  }
-  
-  const existingAdmin = await prisma.user.findUnique({
-    where: { email: adminEmail },
+  const existingAdmin = await prisma.user.findFirst({
+    where: { role: Role.ADMIN },
   })
-  
+
   if (existingAdmin) {
-    console.log(`Admin bootstrap skipped: user "${adminEmail}" already exists.`)
+    console.log('Admin bootstrap skipped: an admin already exists.')
     return
   }
-  
-  const hashedPassword = await bcrypt.hash(adminPassword, SALT_ROUNDS)
-  
+
+  const password = randomBytes(24).toString('base64url')
+  const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
+
   await prisma.user.create({
     data: {
-      email: adminEmail,
+      email: ADMIN_EMAIL,
       name: 'Super Admin',
       role: Role.ADMIN,
       passwordHash: hashedPassword,
       emailVerified: new Date(),
     },
   })
-  
-  console.log(`Admin user created successfully: ${adminEmail}`)
+
+  // eslint-disable-next-line no-console
+  console.log('╔════════════════════════════════════════════════════════════╗')
+  // eslint-disable-next-line no-console
+  console.log('║         ADMIN BOOTSTRAP CREDENTIALS — COPY NOW             ║')
+  // eslint-disable-next-line no-console
+  console.log('╠════════════════════════════════════════════════════════════╣')
+  // eslint-disable-next-line no-console
+  console.log(`║  Email:    ${ADMIN_EMAIL.padEnd(46)} ║`)
+  // eslint-disable-next-line no-console
+  console.log(`║  Password: ${password.padEnd(46)} ║`)
+  // eslint-disable-next-line no-console
+  console.log('╚════════════════════════════════════════════════════════════╝')
+  // eslint-disable-next-line no-console
+  console.log()
+  // eslint-disable-next-line no-console
+  console.log('WARNING: This password is displayed ONLY ONCE.')
+  // eslint-disable-next-line no-console
+  console.log('Change it immediately after the first login.')
 }
 
 async function main() {
+  // Admin bootstrap is idempotent and safe for any environment.
+  await seedAdminIfNeeded()
+
+  // Demo data seeding is destructive and blocked in production.
   if (process.env.NODE_ENV === 'production') {
-    console.log('Seed script is disabled in production to prevent data loss.')
+    console.log('Demo data seeding is disabled in production to prevent data loss.')
     return
   }
-  
-  await seedAdminIfNeeded()
-  
+
   const categoriesToCreate = ['Bondage & Restraints', 'Blindfolds & Masks', 'Impact Toys', 'Accessories']
-  
+
   await prisma.product.deleteMany()
   await prisma.category.deleteMany()
-  
+
   const createdCategories = []
-  
+
   for (const name of categoriesToCreate) {
     const category = await prisma.category.create({
       data: {
@@ -83,9 +90,9 @@ async function main() {
     createdCategories.push(category)
   }
   console.log(`Create ${createdCategories.length} categories.`)
-  
+
   const categoryByName = Object.fromEntries(createdCategories.map((c) => [c.name, c]))
-  
+
   const productsData = [
     {
       name: 'Soft Cotton Cuffs (Blue)',
@@ -307,14 +314,14 @@ async function main() {
       images: ['https://placehold.co/600x600/111111/F5F5F5?text=Ankle+Cuffs'],
     },
   ]
-  
+
   const prismaProductsData = productsData.map((product) => {
     const category = categoryByName[product.categoryName]
-    
+
     if (!category) {
       throw new Error(`Category "${product.categoryName}" not found for product "${product.name}"`)
     }
-    
+
     return {
       name: product.name,
       slug: slugify(product.name),
@@ -326,7 +333,7 @@ async function main() {
       categoryId: category.id,
     }
   })
-  
+
   await prisma.product.createMany({
     data: prismaProductsData,
   })
