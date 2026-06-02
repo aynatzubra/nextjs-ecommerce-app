@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import { randomUUID } from 'node:crypto'
 import { sendVerificationEmail } from '@/shared/lib/email/sendEmail'
+import { env } from '@/shared/config/env'
 
 export const REGISTER_ERRORS = {
   USER_ALREADY_EXISTS: 'USER_ALREADY_EXISTS',
@@ -45,10 +46,7 @@ export async function registerUserService({
       return { user , token }
     })
     
-    const appUrl = process.env.APP_URL
-    if(!appUrl) throw new Error('Missing APP_URL')
-    
-    const verifyUrl = `${appUrl}/verify-email/${token}`
+    const verifyUrl = `${env.APP_URL}/verify-email/${token}`
     
     try {
       await sendVerificationEmail({

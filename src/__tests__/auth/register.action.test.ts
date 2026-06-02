@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const registerUserServiceMock = vi.hoisted(() => vi.fn())
 
@@ -7,16 +7,9 @@ vi.mock('@/features/auth/services/registerUser.service', () => ({
 }))
 
 describe('registerUser action', () => {
-  const OLD_ENV = process.env
-
   beforeEach(() => {
     vi.clearAllMocks()
     vi.resetModules()
-    process.env = { ...OLD_ENV }
-  })
-
-  afterEach(() => {
-    process.env = OLD_ENV
   })
 
   it('returns invalid input data when schema fails (and does not call service)', async () => {

@@ -1,6 +1,7 @@
 import { prisma } from '@/shared/lib/prisma'
 import { randomUUID } from 'crypto'
 import { sendVerificationEmail } from '@/shared/lib/email/sendEmail'
+import { env } from '@/shared/config/env'
 
 export async function resendVerificationEmailService(email: string) {
   const normalizedEmail = email.trim().toLowerCase()
@@ -29,12 +30,7 @@ export async function resendVerificationEmailService(email: string) {
     },
   })
   
-  const appUrl = process.env.APP_URL
-  if (!appUrl) {
-    throw new Error('Missing APP_URL')
-  }
-  
-  const verifyUrl = `${appUrl}/verify-email/${token}`
+  const verifyUrl = `${env.APP_URL}/verify-email/${token}`
   
   await sendVerificationEmail({
     to: normalizedEmail,

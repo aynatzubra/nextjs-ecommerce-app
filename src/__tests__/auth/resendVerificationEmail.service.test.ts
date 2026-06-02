@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import { mockPrisma } from '@/test-utils/mockPrisma'
 
 const sendVerificationEmailMock = vi.hoisted(() => vi.fn())
@@ -26,7 +26,11 @@ const { resendVerificationEmailService } = await import(
 describe('resendVerificationEmailService', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    process.env.APP_URL = 'http://localhost:3000'
+    vi.stubEnv('APP_URL', 'http://localhost:3000')
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
   })
   
   it('deletes old tokens, creates a new token and sends verification email', async () => {
@@ -91,28 +95,6 @@ describe('resendVerificationEmailService', () => {
     
     expect(mockPrisma.verificationToken.deleteMany).not.toHaveBeenCalled()
     expect(mockPrisma.verificationToken.create).not.toHaveBeenCalled()
-    expect(sendVerificationEmailMock).not.toHaveBeenCalled()
-  })
-  
-  it('throws if APP_URL is missing after token creation', async () => {
-    delete process.env.APP_URL
-    
-    mockPrisma.user.findUnique.mockResolvedValue({
-      emailVerified: null,
-    })
-    
-    mockPrisma.verificationToken.deleteMany.mockResolvedValue({
-      count: 1,
-    })
-    
-    mockPrisma.verificationToken.create.mockResolvedValue({
-      identifier: 'user@mail.com',
-      token: 'uuid-test-456',
-      expires: new Date(Date.now() + 60_000),
-    })
-    
-    await expect(resendVerificationEmailService('user@mail.com')).rejects.toThrow('Missing APP_URL')
-    
     expect(sendVerificationEmailMock).not.toHaveBeenCalled()
   })
 })

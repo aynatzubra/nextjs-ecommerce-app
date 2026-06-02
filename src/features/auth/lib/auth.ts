@@ -7,6 +7,7 @@ import { prisma } from '@/shared/lib/prisma'
 import Credentials from 'next-auth/providers/credentials'
 import { credentialsSchema } from '@/features/auth/lib/validations'
 import bcrypt from 'bcryptjs'
+import { env } from '@/shared/config/env'
 
 declare module 'next-auth' {
   interface Session {
@@ -19,12 +20,12 @@ declare module 'next-auth' {
   }
 }
 
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
+const GOOGLE_CLIENT_ID = env.GOOGLE_CLIENT_ID
+const GOOGLE_CLIENT_SECRET = env.GOOGLE_CLIENT_SECRET
 
 // if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
 //   throw new Error(
-//     'Missing Google Auth environment variables. Please check GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your .env file.',
+//     'Missing Google Auth environment variables. Please check GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your .env.local file.',
 //   )
 // }
 
