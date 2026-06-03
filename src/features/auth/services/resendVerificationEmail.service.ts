@@ -1,7 +1,7 @@
 import { prisma } from '@/shared/lib/prisma'
-import { randomUUID } from 'crypto'
 import { sendVerificationEmail } from '@/shared/lib/email/sendEmail'
 import { env } from '@/shared/config/env'
+import { randomBytes } from 'crypto'
 
 export async function resendVerificationEmailService(email: string) {
   const normalizedEmail = email.trim().toLowerCase()
@@ -20,7 +20,7 @@ export async function resendVerificationEmailService(email: string) {
     where: { identifier: normalizedEmail },
   })
   
-  const token = randomUUID()
+  const token = randomBytes(32).toString('base64url')
   
   await prisma.verificationToken.create({
     data: {

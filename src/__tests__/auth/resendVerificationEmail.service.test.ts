@@ -15,7 +15,9 @@ vi.mock('crypto', async () => {
   const actual = await vi.importActual<any>('crypto')
   return {
     ...actual,
-    randomUUID: vi.fn(() => 'uuid-test-456'),
+    randomBytes: () => ({
+      toString: () => 'token-test-456',
+    }),
   }
 })
 
@@ -28,7 +30,7 @@ describe('resendVerificationEmailService', () => {
     vi.clearAllMocks()
     vi.stubEnv('APP_URL', 'http://localhost:3000')
   })
-
+  
   afterEach(() => {
     vi.unstubAllEnvs()
   })
@@ -44,7 +46,7 @@ describe('resendVerificationEmailService', () => {
     
     mockPrisma.verificationToken.create.mockResolvedValue({
       identifier: 'user@mail.com',
-      token: 'uuid-test-456',
+      token: 'token-test-456',
       expires: new Date(Date.now() + 60_000),
     })
     
@@ -63,7 +65,7 @@ describe('resendVerificationEmailService', () => {
       expect.objectContaining({
         data: expect.objectContaining({
           identifier: 'user@mail.com',
-          token: 'uuid-test-456',
+          token: 'token-test-456',
           expires: expect.any(Date),
         }),
       }),
@@ -72,7 +74,7 @@ describe('resendVerificationEmailService', () => {
     expect(sendVerificationEmailMock).toHaveBeenCalledOnce()
     expect(sendVerificationEmailMock).toHaveBeenCalledWith({
       to: 'user@mail.com',
-      verifyUrl: 'http://localhost:3000/verify-email/uuid-test-456',
+      verifyUrl: 'http://localhost:3000/verify-email/token-test-456',
     })
   })
   

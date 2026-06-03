@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const credentialsSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(6),
+  password: z.string().min(8),
 })
 
 export type CredentialsInput = z.infer<typeof credentialsSchema>
@@ -10,8 +10,8 @@ export type CredentialsInput = z.infer<typeof credentialsSchema>
 export const registerSchema = z
   .object({
     email: z.string().email(),
-    password: z.string().min(6),
-    confirmPassword: z.string().min(6),
+    password: z.string().min(8),
+    confirmPassword: z.string().min(8),
     name: z.string().min(2).optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {

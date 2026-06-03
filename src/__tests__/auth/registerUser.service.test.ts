@@ -16,7 +16,9 @@ vi.mock('crypto', async () => {
   const actual = await vi.importActual<any>('crypto')
   return {
     ...actual,
-    randomUUID: vi.fn(() => 'uuid-test-123'),
+    randomBytes: () => ({
+      toString: () => 'token-test-123',
+    }),
   }
 })
 
@@ -35,29 +37,29 @@ describe('registerUserService', () => {
   
   it('creates user and verification token inside a transaction and returns user', async () => {
     ;(bcrypt.hash as any).mockResolvedValue('hash123')
-
+    
     mockPrisma.user.create.mockResolvedValue({
       id: 'user-id-1',
       email: 'user@mail.com',
     })
-
+    
     mockPrisma.verificationToken.create.mockResolvedValue({
       identifier: 'user@mail.com',
-      token: 'uuid-test-123',
+      token: 'token-test-123',
       expires: new Date(Date.now() + 60_000),
     })
-
+    
     mockPrisma.$transaction.mockImplementation(async (cb: any) => cb(mockPrisma))
-
+    
     const res = await registerUserService({
       email: '  USER@MAIL.com ',
-      password: '123456',
+      password: '12345678',
       name: 'Test',
-      confirmPassword: '123456',
+      confirmPassword: '12345678',
     } as any)
-
+    
     expect(mockPrisma.$transaction).toHaveBeenCalledOnce()
-
+    
     expect(mockPrisma.user.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
@@ -66,12 +68,12 @@ describe('registerUserService', () => {
         }),
       }),
     )
-
+    
     expect(mockPrisma.verificationToken.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           identifier: 'user@mail.com',
-          token: 'uuid-test-123',
+          token: 'token-test-123',
           expires: expect.any(Date),
         }),
       }),
@@ -79,7 +81,7 @@ describe('registerUserService', () => {
     
     expect(sendVerificationEmailMock).toHaveBeenCalledWith({
       to: 'user@mail.com',
-      verifyUrl: 'http://localhost:3000/verify-email/uuid-test-123',
+      verifyUrl: 'http://localhost:3000/verify-email/token-test-123',
     })
     
     expect(res).toEqual(
@@ -91,26 +93,26 @@ describe('registerUserService', () => {
       }),
     )
   })
-
+  
   it('throws USER_ALREADY_EXISTS on Prisma P2002', async () => {
     ;(bcrypt.hash as any).mockResolvedValue('hash123')
-
+    
     mockPrisma.$transaction.mockImplementation(async (cb: any) => cb(mockPrisma))
-
+    
     const p2002 = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
       code: 'P2002',
       clientVersion: 'test',
       meta: { target: ['email'] },
     })
-
+    
     mockPrisma.user.create.mockRejectedValue(p2002)
-
+    
     await expect(
       registerUserService({
         email: 'user@mail.com',
-        password: '123456',
+        password: '12345678',
         name: 'Test',
-        confirmPassword: '123456',
+        confirmPassword: '12345678',
       } as any),
     ).rejects.toThrow('USER_ALREADY_EXISTS')
   })

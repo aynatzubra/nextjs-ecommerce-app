@@ -1,7 +1,7 @@
 import { prisma } from '@/shared/lib/prisma'
 import { Prisma } from '@prisma/client'
 import bcrypt from 'bcryptjs'
-import { randomUUID } from 'node:crypto'
+import { randomBytes } from 'crypto'
 import { sendVerificationEmail } from '@/shared/lib/email/sendEmail'
 import { env } from '@/shared/config/env'
 
@@ -33,7 +33,7 @@ export async function registerUserService({
         },
         select: { id: true, email: true },
       })
-      const token = randomUUID()
+      const token = randomBytes(32).toString('base64url')
       
       await tx.verificationToken.create({
         data: {
