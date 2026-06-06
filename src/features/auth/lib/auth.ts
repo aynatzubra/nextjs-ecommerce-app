@@ -8,6 +8,10 @@ import Credentials from 'next-auth/providers/credentials'
 import { credentialsSchema } from '@/features/auth/lib/validations'
 import bcrypt from 'bcryptjs'
 import { env } from '@/shared/config/env'
+import { rateLimit } from '@/shared/lib/security/rate-limit'
+import { validateCredentials } from '@/features/auth/services/validateCredentials.service'
+import { rateLimitKeys } from '@/shared/lib/security/rate-limit-keys'
+import { getRequestIp } from '@/shared/lib/security/getRequestIp'
 
 declare module 'next-auth' {
   interface Session {
@@ -52,29 +56,30 @@ export const {
       async authorize(credentials) {
         const parsed = credentialsSchema.safeParse(credentials)
         if (!parsed.success) return null
-
+        
         const { email, password } = parsed.data
-
-        const user = await prisma.user.findUnique({
-          where: { email },
+        
+        const ip = await getRequestIp()
+        
+        if (ip) {
+          await rateLimit({
+            key: rateLimitKeys.credentialsIp(ip),
+            limit: 20,
+            windowMs: 1000 * 60 * 15,
+          })
+        }
+        
+        await rateLimit({
+          key: rateLimitKeys.credentialsEmail(email),
+          limit: 5,
+          windowMs: 1000 * 60 * 15,
         })
-
-        if (!user || !user.passwordHash) {
+        
+        try {
+          const user = await validateCredentials({ email, password })
+          return { id: user.id, email: user.email, role: user.role, name: user.name }
+        } catch {
           return null
-        }
-
-        if (!user.emailVerified) {
-          throw new Error('EMAIL_NOT_VERIFIED')
-        }
-
-        const isValid = await bcrypt.compare(password, user.passwordHash)
-        if (!isValid) return null
-
-        return {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          name: user.name,
         }
       },
     }),

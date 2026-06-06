@@ -2,14 +2,29 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const registerUserServiceMock = vi.hoisted(() => vi.fn())
 
+const getRequestIpMock = vi.hoisted(() => vi.fn().mockResolvedValue('127.0.0.1'))
+const rateLimitMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
 vi.mock('@/features/auth/services/registerUser.service', () => ({
   registerUserService: registerUserServiceMock,
+}))
+
+vi.mock('@/shared/lib/security/getRequestIp', () => ({
+  getRequestIp: getRequestIpMock,
+}))
+
+vi.mock('@/shared/lib/security/rate-limit', () => ({
+  rateLimit: rateLimitMock,
+  RateLimitError: class RateLimitError extends Error {
+    constructor() {
+      super('RATE_LIMIT_EXCEEDED')
+    }
+  },
 }))
 
 describe('registerUser action', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.resetModules()
+    // vi.resetModules()
   })
   
   it('returns invalid input data when schema fails (and does not call service)', async () => {

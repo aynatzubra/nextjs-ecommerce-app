@@ -35,7 +35,7 @@ export function LoginForm() {
       const check = await checkLogin({ email, password })
 
       if (!check.ok) {
-        if (check.reason === 'EMAIL_NOT_VERIFIED') {
+        if (check.reason === 'INVALID_CREDENTIALS') {
           setError('Please verify your email before logging in.')
           return
         }
