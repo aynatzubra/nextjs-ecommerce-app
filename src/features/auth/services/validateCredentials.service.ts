@@ -30,5 +30,7 @@ export async function validateCredentials({ email, password }: {
     throw new Error(LOGIN_ERRORS.EMAIL_NOT_VERIFIED)
   }
   
-  return user
+  // return user
+  const { passwordHash, ...safeUser } = user
+  return safeUser
 }
