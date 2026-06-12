@@ -6,7 +6,6 @@ import { signIn } from 'next-auth/react'
 import React, { useState } from 'react'
 
 import { cn } from '@/shared/lib/cn'
-import { checkLogin } from '@/features/auth/actions/checkLogin'
 
 // TODO: react-hook-form (validation, submit lock)
 // TODO: forgot password flow
@@ -32,21 +31,6 @@ export function LoginForm() {
     const password = String(formData.get('password') ?? '')
 
     try {
-      const check = await checkLogin({ email, password })
-
-      if (!check.ok) {
-        if (check.reason === 'INVALID_CREDENTIALS') {
-          setError('Please verify your email before logging in.')
-          return
-        }
-        if (check.reason === 'INVALID_INPUT') {
-          setError('Please enter a valid email and password.')
-          return
-        }
-        setError('Invalid email or password')
-        return
-      }
-
       const res = await signIn('credentials', {
         email,
         password,

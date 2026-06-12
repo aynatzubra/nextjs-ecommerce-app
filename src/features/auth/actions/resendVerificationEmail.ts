@@ -7,7 +7,7 @@ import { rateLimit, RateLimitError } from '@/shared/lib/security/rate-limit'
 import { rateLimitKeys } from '@/shared/lib/security/rate-limit-keys'
 
 const inputSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().toLowerCase().email(),
 })
 
 export async function resendVerificationEmail(input: { email: string }) {
@@ -17,7 +17,7 @@ export async function resendVerificationEmail(input: { email: string }) {
   try {
     const ip = (await getRequestIp()) ?? 'unknown'
     
-    const normalizedEmail = parsed.data.email.trim().toLowerCase()
+    const normalizedEmail = parsed.data.email
     
     await rateLimit({
       key: rateLimitKeys.resendIp(ip),
