@@ -1,5 +1,5 @@
 import { auth } from '@/features/auth/lib/auth'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 
 /**
  * Security boundary helpers.
@@ -30,7 +30,7 @@ export async function requireAdmin() {
   const user = await requireUser()
   
   if (user.role !== 'ADMIN') {
-    redirect('/')
+    notFound()
   }
   
   return user

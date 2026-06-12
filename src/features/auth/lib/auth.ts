@@ -1,17 +1,9 @@
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import NextAuth, { DefaultSession } from 'next-auth'
-import GoogleProvider from 'next-auth/providers/google'
-
 import { jwtCallback, sessionCallback } from '@/shared/lib/auth/callbacks'
 import { prisma } from '@/shared/lib/prisma'
 import Credentials from 'next-auth/providers/credentials'
-import { credentialsSchema } from '@/features/auth/lib/validations'
-import bcrypt from 'bcryptjs'
-import { env } from '@/shared/config/env'
-import { rateLimit } from '@/shared/lib/security/rate-limit'
-import { validateCredentials } from '@/features/auth/services/validateCredentials.service'
-import { rateLimitKeys } from '@/shared/lib/security/rate-limit-keys'
-import { getRequestIp } from '@/shared/lib/security/getRequestIp'
+import { authorizeCredentials } from '@/features/auth/lib/authorizeCredentials'
 
 declare module 'next-auth' {
   interface Session {
@@ -24,15 +16,6 @@ declare module 'next-auth' {
   }
 }
 
-const GOOGLE_CLIENT_ID = env.GOOGLE_CLIENT_ID
-const GOOGLE_CLIENT_SECRET = env.GOOGLE_CLIENT_SECRET
-
-// if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-//   throw new Error(
-//     'Missing Google Auth environment variables. Please check GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your .env.local file.',
-//   )
-// }
-
 export const {
   handlers: { GET, POST },
   signIn,
@@ -42,46 +25,21 @@ export const {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt',
+    maxAge: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 8,
+  },
+  trustHost: true,
+  pages: {
+    signIn: '/login',
+    error: '/login',
   },
   providers: [
-    // GoogleProvider({
-    //   clientId: GOOGLE_CLIENT_ID,
-    //   clientSecret: GOOGLE_CLIENT_SECRET,
-    // }),
     Credentials({
       credentials: {
         username: { label: 'Username' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
-        const parsed = credentialsSchema.safeParse(credentials)
-        if (!parsed.success) return null
-        
-        const { email, password } = parsed.data
-        
-        const ip = await getRequestIp()
-        
-        if (ip) {
-          await rateLimit({
-            key: rateLimitKeys.credentialsIp(ip),
-            limit: 20,
-            windowMs: 1000 * 60 * 15,
-          })
-        }
-        
-        await rateLimit({
-          key: rateLimitKeys.credentialsEmail(email),
-          limit: 5,
-          windowMs: 1000 * 60 * 15,
-        })
-        
-        try {
-          const user = await validateCredentials({ email, password })
-          return { id: user.id, email: user.email, role: user.role, name: user.name }
-        } catch {
-          return null
-        }
-      },
+      authorize: authorizeCredentials,
     }),
   ],
   callbacks: {

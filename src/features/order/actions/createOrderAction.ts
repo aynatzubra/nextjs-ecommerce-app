@@ -1,6 +1,5 @@
 'use server'
 
-import { auth } from '@/features/auth/lib/auth'
 import * as z from 'zod'
 import { revalidatePath } from 'next/cache'
 import { createOrderService, ProductOutOfStockError } from '@/features/order/services/createOrderService'
