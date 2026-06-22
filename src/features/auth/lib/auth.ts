@@ -4,6 +4,9 @@ import { jwtCallback, sessionCallback } from '@/shared/lib/auth/callbacks'
 import { prisma } from '@/shared/lib/prisma'
 import Credentials from 'next-auth/providers/credentials'
 import { authorizeCredentials } from '@/features/auth/lib/authorizeCredentials'
+import { env } from '@/shared/config/env'
+
+const isProd = env.NODE_ENV === 'production'
 
 declare module 'next-auth' {
   interface Session {
@@ -22,13 +25,26 @@ export const {
   signOut,
   auth,
 } = NextAuth({
+  useSecureCookies: isProd,
+  cookies: {
+    sessionToken: {
+      name: isProd
+        ? '__Secure-authjs.session-token'
+        : 'authjs.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: isProd,
+        path: '/',
+      },
+    },
+  },
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt',
     maxAge: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 8,
   },
-  trustHost: true,
   pages: {
     signIn: '/login',
     error: '/login',

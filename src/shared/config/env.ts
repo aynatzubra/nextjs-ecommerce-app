@@ -10,6 +10,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   
   APP_URL: z.string().url(),
+  NEXTAUTH_URL: z.string().url(),
   
   RESEND_API_KEY: z.string().min(1),
   EMAIL_FROM: z.string().email(),
