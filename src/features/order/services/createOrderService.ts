@@ -24,7 +24,7 @@ export async function createOrderService({
   quantity,
 }: CreateOrderInput): Promise<CreateOrderResult> {
   
-  const order = await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const stockUpdate = await tx.product.updateMany({
       where: {
         id: productId,
@@ -77,7 +77,7 @@ export async function createOrderService({
   })
   
   return {
-    orderId: order.order.id,
-    totalAmount: order.totalAmount,
+    orderId: result.order.id,
+    totalAmount: result.totalAmount,
   }
 }

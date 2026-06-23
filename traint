@@ -1,0 +1,28 @@
+                                           Table "public.Product"
+   Column    |              Type              | Collation | Nullable |                Default                
+-------------+--------------------------------+-----------+----------+---------------------------------------
+ id          | integer                        |           | not null | nextval('"Product_id_seq"'::regclass)
+ name        | text                           |           | not null | 
+ slug        | text                           |           | not null | 
+ description | text                           |           | not null | 
+ price       | numeric(65,30)                 |           | not null | 
+ images      | text[]                         |           |          | 
+ stock       | integer                        |           | not null | 0
+ isActive    | boolean                        |           | not null | true
+ categoryId  | integer                        |           | not null | 
+ createdAt   | timestamp(3) without time zone |           | not null | CURRENT_TIMESTAMP
+ updatedAt   | timestamp(3) without time zone |           | not null | 
+Indexes:
+    "Product_pkey" PRIMARY KEY, btree (id)
+    "Product_isActive_categoryId_createdAt_idx" btree ("isActive", "categoryId", "createdAt")
+    "Product_isActive_categoryId_price_idx" btree ("isActive", "categoryId", price)
+    "Product_isActive_categoryId_stock_idx" btree ("isActive", "categoryId", stock)
+    "Product_isActive_createdAt_idx" btree ("isActive", "createdAt")
+    "Product_slug_key" UNIQUE, btree (slug)
+Check constraints:
+    "product_stock_non_negative" CHECK (stock >= 0)
+Foreign-key constraints:
+    "Product_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"(id) ON UPDATE CASCADE ON DELETE RESTRICT
+Referenced by:
+    TABLE ""OrderItem"" CONSTRAINT "OrderItem_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"(id) ON UPDATE CASCADE ON DELETE SET NULL
+
