@@ -54,11 +54,12 @@ describe('createOrderAction (validation & auth)', () => {
   it('calls transaction and revalidatePath on successful creation', async () => {
     authMock.mockResolvedValue({ user: { id: 'test-user-id', role: 'USER' } })
     
-    mockPrisma.product.findUnique.mockResolvedValue({
+    mockPrisma.product.updateMany.mockResolvedValue({ count: 1 })
+    
+    mockPrisma.product.findUniqueOrThrow.mockResolvedValue({
       id: 1,
       price: { mul: vi.fn(() => 200) },
       name: 'Test Product',
-      stock: 10,
     })
     
     mockPrisma.order.create.mockResolvedValue({
@@ -75,8 +76,24 @@ describe('createOrderAction (validation & auth)', () => {
     const result = await createOrderAction(makeFormData('1', '2'))
     
     expect(result.success).toBe(true)
-    expect(mockPrisma.product.findUnique).toHaveBeenCalledOnce()
     expect(mockPrisma.$transaction).toHaveBeenCalledOnce()
+    expect(mockPrisma.product.updateMany).toHaveBeenCalledOnce()
+    expect(mockPrisma.product.findUniqueOrThrow).toHaveBeenCalledOnce()
+    expect(mockPrisma.order.create).toHaveBeenCalledOnce()
+    expect(mockPrisma.product.updateMany).toHaveBeenCalledWith({
+      where: {
+        id: 1,
+        stock: {
+          gte: 2,
+        },
+      },
+      data: {
+        stock: {
+          decrement: 2,
+        },
+      },
+    })
+    
     expect(revalidatePath).toHaveBeenCalledWith('/account/orders')
     expect(revalidatePath).toHaveBeenCalledWith('/products/1')
   })
@@ -84,17 +101,23 @@ describe('createOrderAction (validation & auth)', () => {
   it('returns out-of-stock message when stock is insufficient', async () => {
     authMock.mockResolvedValue({ user: { id: 'test-user-id', role: 'USER' } })
     
-    mockPrisma.product.findUnique.mockResolvedValue({
-      id: 1,
-      price: { mul: vi.fn(() => 200) },
-      name: 'Test Product',
-      stock: 1,
+    // Contract: Atomic decrement fails to find a row matching { stock: { gte: quantity } }
+    mockPrisma.product.updateMany.mockResolvedValue({ count: 0 })
+    
+    mockPrisma.$transaction.mockImplementation(async (cb: (tx: typeof mockPrisma) => unknown) => {
+      return cb(mockPrisma)
     })
     
     const result = await createOrderAction(makeFormData('1', '2'))
     
     expect(result.success).toBe(false)
+    // Assuming your action catches the ProductOutOfStockError and maps it to this string:
     expect(result.message).toContain('out of stock')
-    expect(mockPrisma.$transaction).not.toHaveBeenCalled()
+    
+    // The transaction WAS called, but the operations inside it were aborted
+    expect(mockPrisma.$transaction).toHaveBeenCalledOnce()
+    expect(mockPrisma.product.updateMany).toHaveBeenCalledOnce()
+    expect(mockPrisma.product.findUniqueOrThrow).not.toHaveBeenCalled()
+    expect(mockPrisma.order.create).not.toHaveBeenCalled()
   })
 })
