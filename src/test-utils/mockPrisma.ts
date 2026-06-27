@@ -9,13 +9,24 @@ export const mockPrisma = {
   product: {
     findUnique: vi.fn(),
     update: vi.fn(),
+    updateMany: vi.fn(),
     count: vi.fn(),
     findMany: vi.fn(),
-    updateMany: vi.fn(),
     findUniqueOrThrow: vi.fn(),
   },
   order: {
     create: vi.fn(),
+    findMany: vi.fn(),
+    findUnique: vi.fn(),
+    findUniqueOrThrow: vi.fn(),
+    update: vi.fn(),
+    updateMany: vi.fn(),
+  },
+  orderItem: {
+    create: vi.fn(),
+    createMany: vi.fn(),
+    findMany: vi.fn(),
+    updateMany: vi.fn(),
   },
   verificationToken: {
     findUnique: vi.fn(),

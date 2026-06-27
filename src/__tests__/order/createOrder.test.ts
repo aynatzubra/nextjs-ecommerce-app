@@ -58,8 +58,12 @@ describe('createOrderAction (validation & auth)', () => {
     
     mockPrisma.product.findUniqueOrThrow.mockResolvedValue({
       id: 1,
-      price: { mul: vi.fn(() => 200) },
       name: 'Test Product',
+      slug: 'test-product',
+      sku: 'TEST-001',
+      price: { mul: vi.fn(() => 200) },
+      currency: 'MDL',
+      images: ['https://example.com/image.jpg'],
     })
     
     mockPrisma.order.create.mockResolvedValue({
@@ -93,6 +97,26 @@ describe('createOrderAction (validation & auth)', () => {
         },
       },
     })
+    
+    expect(mockPrisma.order.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          requestId: expect.any(String),
+          currency: 'MDL',
+          items: {
+            create: expect.objectContaining({
+              title: 'Test Product',
+              productSlug: 'test-product',
+              sku: 'TEST-001',
+              productImage: 'https://example.com/image.jpg',
+              currency: 'MDL',
+              quantity: 2,
+              lineTotal: 200,
+            }),
+          },
+        }),
+      }),
+    )
     
     expect(revalidatePath).toHaveBeenCalledWith('/account/orders')
     expect(revalidatePath).toHaveBeenCalledWith('/products/1')

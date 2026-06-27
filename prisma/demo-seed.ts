@@ -1,14 +1,30 @@
-import { Prisma } from '@prisma/client'
-import { productsData } from './demo-products'
+import { Currency, Prisma } from '@prisma/client'
+
 import { slugify } from '@/shared/lib/text/slugify'
 
+import { productsData } from './demo-products'
+
+type DemoProductInput = {
+  name: string
+  categoryName: string
+  price: string
+  stock: number
+  description: string
+  images: string[]
+  isActive?: boolean
+  sku?: string
+  currency?: string
+}
+
 export async function seedDemoData(tx: Prisma.TransactionClient) {
+  const demoProducts = productsData as DemoProductInput[]
+
   const categoriesToCreate = Array.from(
-    new Set(productsData.map((p) => p.categoryName)),
+    new Set(demoProducts.map((p) => p.categoryName)),
   )
   const targetCategorySlugs = categoriesToCreate.map(slugify)
   
-  const targetProductSlugs = productsData.map((p) => slugify(p.name))
+  const targetProductSlugs = demoProducts.map((p) => slugify(p.name))
   
   const seenSlugs = new Set<string>()
   const duplicates = new Set<string>()
@@ -44,7 +60,7 @@ export async function seedDemoData(tx: Prisma.TransactionClient) {
   }
   
   // Upsert Categories
-  const createdCategories: Prisma.CategoryGetPayload<{}>[] = []
+  const createdCategories: Prisma.CategoryGetPayload<object>[] = []
   
   for (const name of categoriesToCreate) {
     const slug = slugify(name)
@@ -58,13 +74,13 @@ export async function seedDemoData(tx: Prisma.TransactionClient) {
   
   const categoryBySlug: Record<
     string,
-    Prisma.CategoryGetPayload<{}>
+    Prisma.CategoryGetPayload<object>
   > = Object.fromEntries(
     createdCategories.map((c) => [c.slug, c]),
   )
   
   // Upsert Products
-  for (const product of productsData) {
+  for (const product of demoProducts) {
     const categorySlug = slugify(product.categoryName)
     const category = categoryBySlug[categorySlug]
     
@@ -73,13 +89,17 @@ export async function seedDemoData(tx: Prisma.TransactionClient) {
     }
     
     const slug = slugify(product.name)
+    const sku = product.sku ?? slug
+    const currency = (product.currency as Currency) ?? 'MDL'
     
     await tx.product.upsert({
       where: { slug },
       update: {
         name: product.name,
+        sku,
         description: product.description,
         price: product.price,
+        currency,
         images: product.images,
         stock: product.stock,
         isActive: product.isActive ?? true,
@@ -88,8 +108,10 @@ export async function seedDemoData(tx: Prisma.TransactionClient) {
       create: {
         name: product.name,
         slug,
+        sku,
         description: product.description,
         price: product.price,
+        currency,
         images: product.images,
         stock: product.stock,
         isActive: product.isActive ?? true,
@@ -98,5 +120,5 @@ export async function seedDemoData(tx: Prisma.TransactionClient) {
     })
   }
   
-  console.log(`Demo Data: Synchronized ${categoriesToCreate.length} categories and ${productsData.length} products.`)
+  console.log(`Demo Data: Synchronized ${categoriesToCreate.length} categories and ${demoProducts.length} products.`)
 }
